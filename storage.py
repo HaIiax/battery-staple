@@ -4,8 +4,6 @@ from classes import Person
 
 class Storage:
     def __init__(self):
-        self.persons = {}
-        self.cars = {}
         self.client = boto3.client('s3')
 
         self.put('testing/Storage', 'a test value')
@@ -35,20 +33,19 @@ class Storage:
         except:
             return
 
-    def stats(self):
-        print ("len(self.persons): " + str(len(self.persons)))
-        print ("len(self.cars): " + str(len(self.cars)))
-        print ("==========")
-
     def upsert_person(self, data):
-
-        if data['user_id'] not in self.persons:
-            print("created a new person " + data['user_id'])
-            person = Person(data['user_id'], data['name'], 'TBD', 'TBD')
-            self.persons[data['user_id']] = person
+        user_id = data['user_id']
+        person_key = "Person/" + user_id
+        person_str = self.get(person_key)
+        if person_str is None:
+            person = Person(user_id, data['name'], 'TBD', 'TBD')
+            self.put(person_key, str(person))
+            print('added new person: ' + str(person))
         else:
-            print('found existing person ' + data['user_id'])
-            person = self.persons[data['user_id']]
+            person_array = person_str.split('/')
+            person = Person(person_array[0], person_array[1], person_array[2], person_array[3])
             person.name = data['name']
+            self.put(person_key, str(person))
+            print ('updated person: ' + str(person))
 
         return person
