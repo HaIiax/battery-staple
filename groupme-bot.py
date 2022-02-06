@@ -83,6 +83,7 @@ def attach_type(attachments):
 
 #TODO Make log entries for polls and events appear cleaner (not critical)
 def logmsg(data):
+    print(data)
     try:
         sender_type = data['sender_type']
     except KeyError as missing_key:
