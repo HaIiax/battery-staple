@@ -14,15 +14,3 @@ class Car:
         self.model = model
         self.parking_spot = parking_spot
 
-
-class Driver(Car):
-    def __init__(self, name):
-        self.name = name
-
-
-class Ride(Driver, Person):
-    def __init__(self):
-
-
-class Event(Ride):
-    def __init__(self):
