@@ -4,6 +4,7 @@ GroupMe Bot
 Developed by Paul Pfeister
 """
 import os
+from storage import Storage
 import sys
 import requests
 import importlib
@@ -63,6 +64,8 @@ for group in BOT_INFO:
         if group in GROUP_RULES: del GROUP_RULES[group]
         if DEBUG: print(errcol.debug + "Group rules not found for [G:{}]".format(group) + errcol.tail)
 
+
+storer = Storage()
 #######################################################################################################
 ######################## Helper functions #############################################################
 
@@ -122,6 +125,6 @@ def webhook():
         if GROUP_RULES[data['group_id']].run(data, BOT_INFO[data['group_id']], send_message):
             return "ok", 200
 
-    GLOBAL_RULES.run(data, BOT_INFO[data['group_id']], send_message)
+    GLOBAL_RULES.run(storer, data, BOT_INFO[data['group_id']], send_message)
 
     return "ok", 200

@@ -1,10 +1,10 @@
 from classes import Person
 
+
 class Storage:
     def __init__(self):
         self.persons = {}
         self.cars = {}
-
 
     def upsert_person(self, data):
 
@@ -16,6 +16,3 @@ class Storage:
             person.name = data['name']
 
         return person
-
-
-

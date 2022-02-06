@@ -1,9 +1,9 @@
 from storage import Storage
 
-def run(data, bot_info, send):
+def run(storer, data, bot_info, send):
 
     help_message = "Help:\n.help  -->  This screen\n.test  -->  Try it!\nOtherwise, repeats your message."
-    person = Storage.upsert_person(data)
+    person = storer.upsert_person()
     print(person)
     message = data['text']
 
