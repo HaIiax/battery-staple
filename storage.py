@@ -5,7 +5,7 @@ class Storage:
     def __init__(self):
         self.persons = {}
         self.cars = {}
-        print('storage initialized')
+        print('Storage Initialized')
 
     def stats(self):
         print ("len(self.persons): " + str(len(self.persons)))
