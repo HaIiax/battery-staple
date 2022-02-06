@@ -3,7 +3,7 @@ from storage import Storage
 def run(storer, data, bot_info, send):
 
     help_message = "Help:\n.help  -->  This screen\n.test  -->  Try it!\nOtherwise, repeats your message."
-    person = storer.upsert_person()
+    person = storer.upsert_person(data)
     print(person)
     message = data['text']
 
