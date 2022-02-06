@@ -5,10 +5,11 @@ class Storage:
     def __init__(self):
         self.persons = {}
         self.cars = {}
+        print('storage initialized')
 
     def stats(self):
-        print ("len(self.persons): " + len(self.persons))
-        print ("len(self.cars): " + len(self.cars))
+        print ("len(self.persons): " + str(len(self.persons)))
+        print ("len(self.cars): " + str(len(self.cars)))
         print ("==========")
 
     def upsert_person(self, data):
