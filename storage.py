@@ -6,6 +6,11 @@ class Storage:
         self.persons = {}
         self.cars = {}
 
+    def stats(self):
+        print ("len(self.persons): " + len(self.persons))
+        print ("len(self.cars): " + len(self.cars))
+        print ("==========")
+
     def upsert_person(self, data):
 
         if data['user_id'] not in self.persons:

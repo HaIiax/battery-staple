@@ -5,6 +5,9 @@ class Person:
         self.time = time
         self.location = location
 
+    def __str__(self):
+        return self.user_id + "/" + self.name + "/" + self.time + "/" + self.location
+
 
 
 class Car:
