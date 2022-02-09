@@ -67,7 +67,7 @@ for group in BOT_INFO:
 
 
 storer = Storage()
-print(Athena.executeQuery('select user_id, name, time, location from person'))
+print(Athena.executeQuery('select try_cast(user_id as bigint) as user_id, name, time, location from person'))
 #######################################################################################################
 ######################## Helper functions #############################################################
 
