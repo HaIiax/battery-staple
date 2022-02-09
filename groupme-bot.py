@@ -66,6 +66,7 @@ for group in BOT_INFO:
 
 
 storer = Storage()
+print(Athena.executeQuery('select user_id, name, time, location from person'))
 #######################################################################################################
 ######################## Helper functions #############################################################
 

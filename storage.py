@@ -1,5 +1,6 @@
 import boto3
 from classes import Person
+from classes import Car
 
 
 class Storage:
@@ -38,14 +39,26 @@ class Storage:
         person_key = "Person/" + user_id
         person_str = self.get(person_key)
         if person_str is None:
-            person = Person(user_id, data['name'], 'TBD', 'TBD')
+            person = Person(user_id, data['name'])
             self.put(person_key, str(person))
             print('added new person: ' + str(person))
         else:
-            person_array = person_str.split('/')
-            person = Person(person_array[0], person_array[1], person_array[2], person_array[3])
-            person.name = data['name']
-            self.put(person_key, str(person))
-            print ('updated person: ' + str(person))
+            person = Person.asPerson(person_str)
+            if (data['name'] != person.name):
+                person.name = data['name']
+                self.put(person_key, str(person))
+                print ('updated person: ' + str(person))
+            else:
+                print ('fetched existing person: '  + str(person))
 
         return person
+
+    def upsert_car(self, car: Car):
+        pk = car.pk()
+        car_str = self.get(pk)
+        if car_str is None:
+            self.put(pk, str(car))
+        else:
+            self.put(pk, str(car))
+
+        return car
