@@ -1,5 +1,5 @@
 from storage import Storage
-from classes import Car
+from classes import Car, Event
 
 def run(storer, data, bot_info, send):
 
