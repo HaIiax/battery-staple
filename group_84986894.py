@@ -58,7 +58,7 @@ def run(storer, data, bot_info, send):
             return True
 
         if event_parts[0].strip()[:1].lower() == 'r':
-            if len(event_parts) != 1:
+            if len(event_parts) != 2:
                 send("Not enough data. Check to see that there is 1 comma in your command", bot_info[0])
                 return True
             result = event.setEventDate(event_parts[1].strip())
