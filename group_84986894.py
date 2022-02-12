@@ -22,15 +22,15 @@ def run(storer, data, bot_info, send):
         car = Car.newCar(data)
         car_parts = message.removeprefix('.car').split(',') # add delete remove , seats , model , parking_location
         print(car_parts)
-        if car_parts[0][:1].lower() == 'a':
-            car.seats = car_parts[1]
-            car.model = car_parts[2]
-            car.parking_spot = car_parts[3]
+        if car_parts[0].strip()[:1].lower() == 'a':
+            car.seats = car_parts[1].strip()
+            car.model = car_parts[2].strip()
+            car.parking_spot = car_parts[3].strip()
             storer.upsert_car(car)
             send("added car: " + str(car), bot_info[0])
             return True
 
-        if car_parts[0][:1].lower() == 'r':
+        if car_parts[0].strip()[:1].lower() == 'r':
             storer.remove_car(car)
             send("removed car: " + str(car), bot_info[0])
             return True
