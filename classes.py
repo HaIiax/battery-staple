@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 class Person:
     def __init__(self, user_id = None, name = None, time = None, location = None):
@@ -72,5 +73,16 @@ class Event:
     def newEvent(cls):
         event = cls()
         return event
+
+
+    def setEventDate(self, date):
+        try:
+            tmp = datetime.strptime(date, '%m/%d/%Y')
+            self.event_date = tmp.strftime('%Y-%m-%d')
+            return None
+        except BaseException as err:
+            return str(err)
+
+
 
 
