@@ -29,12 +29,12 @@ def run(storer, data, bot_info, send):
             car.seats = car_parts[1].strip()
             car.model = car_parts[2].strip()
             car.parking_spot = car_parts[3].strip()
-            storer.upsert_car(car)
+            storer.upsert(car)
             send("added car: " + str(car), bot_info[0])
             return True
 
         if car_parts[0].strip()[:1].lower() == 'r':
-            storer.remove_car(car)
+            storer.remove(car)
             send("removed car: " + str(car), bot_info[0])
             return True
 

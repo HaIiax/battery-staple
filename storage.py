@@ -6,16 +6,6 @@ from classes import Car, Event
 class Storage:
     def __init__(self):
         self.client = boto3.client('s3')
-
-        self.put('testing/Storage', 'a test value')
-        print(self.get('testing/Storage'))
-
-        print(self.get('testing/StorageNotFound'))
-
-        self.put('testing/StorageToBeDeleted', 'a test value to be deleted')
-        print(self.get('testing/StorageToBeDeleted'))
-        self.delete('testing/StorageToBeDeleted')
-
         print('Storage Initialized')
 
     def get(self, key):
@@ -49,37 +39,9 @@ class Storage:
                 self.put(person_key, str(person))
                 print ('updated person: ' + str(person))
             else:
-                print ('fetched existing person: '  + str(person))
+                print ('fetched existing person: ' + str(person))
 
         return person
-
-    def upsert_car(self, car: Car):
-        pk = car.pk()
-        car_str = self.get(pk)
-        if car_str is None:
-            self.put(pk, str(car))
-        else:
-            self.put(pk, str(car))
-
-        return car
-
-    def remove_car(self, car: Car):
-        pk = car.pk()
-        self.delete(pk)
-
-    def upsert_event(self, event: Event):
-        pk = event.pk()
-        event_str = self.get(pk)
-        if event_str is None:
-            self.put(pk, str(event))
-        else:
-            self.put(pk, str(event))
-
-        return event
-
-    def remove_event(self, event: Event):
-        pk = event.pk()
-        self.delete(pk)
 
     def upsert(self, obj):
         pk = obj.pk()
@@ -89,5 +51,3 @@ class Storage:
     def remove(self, obj):
         pk = obj.pk()
         self.delete(pk)
-
-
