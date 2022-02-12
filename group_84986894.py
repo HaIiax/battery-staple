@@ -21,6 +21,7 @@ def run(storer, data, bot_info, send):
     if message.startswith('.car'):
         car = Car.newCar(data)
         car_parts = message.removeprefix('.car').split(',') # add delete remove , seats , model , parking_location
+        print(car_parts)
         if car_parts[0][:1].lower() == 'a':
             car.seats = car_parts[1]
             car.model = car_parts[2]
