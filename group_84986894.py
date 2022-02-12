@@ -93,7 +93,7 @@ def run(storer, data, bot_info, send):
         event_opt_out = EventOptOut.newEventOptOut(data)
         event_opt_out.event_date = current_event_date
         storer.remove(event_opt_out)
-        send("You have been opted into of the event on " + current_event_date, bot_info[0])
+        send("You have been opted into the event on " + current_event_date, bot_info[0])
         return True
 
 
