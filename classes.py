@@ -46,3 +46,31 @@ class Car:
         car = cls()
         car.owner = data['user_id']
         return car
+
+
+class Event:
+    def __init__(self, event_date=None, name=None):
+        self.event_date = event_date
+        self.name = name
+
+    def pk(self):
+        return 'Event/' + self.event_date
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+    def __str__(self):
+        return self.toJson()
+
+    @classmethod
+    def asEvent(cls, jsonString):
+        event = cls()
+        event.__dict__ = json.loads(jsonString)
+        return event
+
+    @classmethod
+    def newEvent(cls):
+        event = cls()
+        return event
+
+

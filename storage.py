@@ -1,6 +1,6 @@
 import boto3
 from classes import Person
-from classes import Car
+from classes import Car, Event
 
 
 class Storage:
@@ -62,3 +62,22 @@ class Storage:
             self.put(pk, str(car))
 
         return car
+
+
+    def upsert_event(self, event: Event):
+        pk = event.pk()
+        event_str = self.get(pk)
+        if event_str is None:
+            self.put(pk, str(event))
+        else:
+            self.put(pk, str(event))
+
+        return event
+
+    def remove_car(self, car: Car):
+        pk = car.pk()
+        self.delete(pk)
+
+    def remove_event(self, event: Event):
+        pk = event.pk()
+        self.delete(pk)
