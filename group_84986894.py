@@ -55,7 +55,7 @@ def run(storer, data, bot_info, send):
                 return True
             event.name = event_parts[2].strip()
             storer.upsert(event)
-            send("added event: " + str(event), bot_info[0])
+            send("Added event: " + str(event), bot_info[0])
             return True
 
         if event_parts[0].strip()[:1].lower() == 'r':
@@ -67,7 +67,7 @@ def run(storer, data, bot_info, send):
                 send("Error in date input." + str(result), bot_info[0])
                 return True
             storer.remove(event)
-            send("removed event: " + str(event), bot_info[0])
+            send("Removed event: " + str(event), bot_info[0])
             return True
 
         send("Error in format for .event command. Should be '.event add, event_date, name' OR '.event remove, event_date'",
@@ -96,6 +96,16 @@ def run(storer, data, bot_info, send):
         send("You have been opted into the event on " + current_event_date, bot_info[0])
         return True
 
+    if message.startswith('.user'):
+        user_parts = message.removeprefix('.user').split(',')
+        if len(event_parts) != 2:
+            send("Not enough data. Check to see that there is 1 comma in your command", bot_info[0])
+            return True
+        person.time = user_parts[0].strip()
+        person.location = user_parts[1].strip()
+        storer.upsert(person)
+        send("Updated Person: " + str(person) ,bot_info[0])
+        return True
 
     send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])
     return True
