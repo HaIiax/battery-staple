@@ -21,7 +21,7 @@ def run(storer, data, bot_info, send):
     if message.startswith('.car'):
         car = Car.newCar(data)
         car_parts = message.removeprefix('.car').split(',') # add delete remove , seats , model , parking_location
-        if car_parts[:0][0].lower() == 'a':
+        if car_parts[0][:1].lower() == 'a':
             car.seats = car_parts[1]
             car.model = car_parts[2]
             car.parking_spot = car_parts[3]
@@ -29,7 +29,7 @@ def run(storer, data, bot_info, send):
             send("added car: " + str(car), bot_info[0])
             return True
 
-        if car_parts[0][:0].lower() == 'r':
+        if car_parts[0][:1].lower() == 'r':
             storer.remove_car(car)
             send("removed car: " + str(car), bot_info[0])
             return True
