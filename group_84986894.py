@@ -34,7 +34,7 @@ def run(storer, data, bot_info, send):
             send("removed car: " + str(car), bot_info[0])
             return True
 
-        send("usage: '.car add, seats, model, parking_location' OR '.car remove'", bot_info[0])
+        send("Error in format for .car command. Should be '.car add, seats, model, parking_location' OR '.car remove'", bot_info[0])
         return True
 
     if message.startswith('.event'):
