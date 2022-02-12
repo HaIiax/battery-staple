@@ -14,6 +14,9 @@ class Person:
     def __str__(self):
         return self.toJson()
 
+    def pk(self):
+        return "Person/" + self.user_id
+
     @classmethod
     def asPerson(cls, jsonString):
         person = cls()
