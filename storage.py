@@ -63,6 +63,9 @@ class Storage:
 
         return car
 
+    def remove_car(self, car: Car):
+        pk = car.pk()
+        self.delete(pk)
 
     def upsert_event(self, event: Event):
         pk = event.pk()
@@ -74,10 +77,17 @@ class Storage:
 
         return event
 
-    def remove_car(self, car: Car):
-        pk = car.pk()
-        self.delete(pk)
-
     def remove_event(self, event: Event):
         pk = event.pk()
         self.delete(pk)
+
+    def upsert(self, obj):
+        pk = obj.pk()
+        self.put(pk, str(obj))
+        return obj
+
+    def remove(self, obj):
+        pk = obj.pk()
+        self.delete(pk)
+
+

@@ -53,7 +53,7 @@ def run(storer, data, bot_info, send):
                 send("Error in date input." + str(result), bot_info[0])
                 return True
             event.name = event_parts[2].strip()
-            storer.upsert_event(event)
+            storer.upsert(event)
             send("added event: " + str(event), bot_info[0])
             return True
 
@@ -65,7 +65,7 @@ def run(storer, data, bot_info, send):
             if result is not None:
                 send("Error in date input." + str(result), bot_info[0])
                 return True
-            storer.remove_event(event)
+            storer.remove(event)
             send("removed event: " + str(event), bot_info[0])
             return True
 

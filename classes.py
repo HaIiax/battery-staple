@@ -84,5 +84,32 @@ class Event:
             return str(err)
 
 
+class EventOptOut:
+    def __init__(self, event_date=None, user_id=None):
+        self.event_date = event_date
+        self.user_id = user_id
+
+    def pk(self):
+        return 'EventOptOut/' + self.event_date + '/' + self.user_id
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+    def __str__(self):
+        return self.toJson()
+
+    @classmethod
+    def asEventOptOut(cls, jsonString):
+        obj = cls()
+        obj.__dict__ = json.loads(jsonString)
+        return obj
+
+    @classmethod
+    def newEventOptOut(cls, data):
+        obj = cls()
+        obj.user_id = data['user_id']
+        return obj
+
+
 
 
