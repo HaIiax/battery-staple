@@ -34,13 +34,13 @@ def run(storer, data, bot_info, send):
             send("removed car: " + str(car), bot_info[0])
             return True
 
-        send("usage: '.car add, seats, model, parking_location' OR '.car remove'")
+        send("usage: '.car add, seats, model, parking_location' OR '.car remove'", bot_info[0])
         return True
 
     if message.startswith('.event'):
         event = Event.newEvent()
         event_parts = message.removeprefix('.event').split(',') # add delete remove / seats / model / parking_location
-        send("feature not yet implemented")
+        send("feature not yet implemented", bot_info[0])
         return True
 
     send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])
