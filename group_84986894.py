@@ -45,7 +45,7 @@ def run(storer, data, bot_info, send):
         event = Event.newEvent()
         event_parts = message.removeprefix('.event').split(',') # add delete remove / seats / model / parking_location
         if event_parts[0].strip()[:1].lower() == 'a':
-            if len(event_parts) != 2:
+            if len(event_parts) != 3:
                 send("Not enough data. Check to see that there are 2 commas in your command", bot_info[0])
                 return True
             result = event.setEventDate(event_parts[1].strip())
