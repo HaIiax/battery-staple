@@ -98,7 +98,7 @@ def run(storer, data, bot_info, send):
 
     if message.startswith('.user'):
         user_parts = message.removeprefix('.user').split(',')
-        if len(event_parts) != 2:
+        if len(user_parts) != 2:
             send("Not enough data. Check to see that there is 1 comma in your command", bot_info[0])
             return True
         person.time = user_parts[0].strip()
