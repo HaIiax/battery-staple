@@ -85,6 +85,17 @@ def run(storer, data, bot_info, send):
         send("You have been opted out of the event on " + current_event_date, bot_info[0])
         return True
 
+    if message.startswith('.going'):
+        current_event_date = Queries.getCurrentEventDate()
+        if current_event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        event_opt_out = EventOptOut.newEventOptOut(data)
+        event_opt_out.event_date = current_event_date
+        storer.remove(event_opt_out)
+        send("You have been opted into of the event on " + current_event_date, bot_info[0])
+        return True
+
 
     send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])
     return True
