@@ -1,5 +1,6 @@
 from storage import Storage
-from classes import Car, Event
+from classes import Car, Event, EventOptOut
+from queries import Queries
 
 def run(storer, data, bot_info, send):
 
@@ -72,6 +73,18 @@ def run(storer, data, bot_info, send):
         send("Error in format for .event command. Should be '.event add, event_date, name' OR '.event remove, event_date'",
              bot_info[0])
         return True
+
+    if message.startswith('.notgoing'):
+        current_event_date = Queries.getCurrentEventDate()
+        if current_event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        event_opt_out = EventOptOut.newEventOptOut(data)
+        event_opt_out.event_date = current_event_date
+        storer.upsert(event_opt_out)
+        send("You have been opted out of the event on " + current_event_date, bot_info[0])
+        return True
+
 
     send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])
     return True
