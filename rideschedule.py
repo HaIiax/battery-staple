@@ -6,7 +6,11 @@ class RideSchedule:
         self._schedule = None
 
     def toJson(self):
-        return json.dumps(self, default=lambda o: o._schedule)  # not correct?
+        stra = []
+        for row in self._schedule
+            row_str = json.dumps(self, default=lambda o: row)
+            stra.append(row_str)
+        return '\n'.join(stra)
 
     def __str__(self):
         return self.toJson()
