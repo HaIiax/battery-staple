@@ -99,11 +99,12 @@ def run(storer, data, bot_info, send):
         return True
 
     if message == '.generate':
+        Queries.setImplementation(TestQueries())
         current_event_date = Queries.getCurrentEventDate()
         if current_event_date is None:
             send("No current event. Try again later", bot_info[0])
             return True
-        Queries.setImplementation(TestQueries())
+
         event_date = Queries.getCurrentEventDate()
         rs = RideSchedule(event_date)
         rs.setCars(Queries.getCars())
