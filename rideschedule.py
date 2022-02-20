@@ -7,7 +7,7 @@ class RideSchedule:
 
     def toJson(self):
         stra = []
-        for row in self._schedule
+        for row in self._schedule:
             row_str = json.dumps(self, default=lambda o: row)
             stra.append(row_str)
         return '\n'.join(stra)
