@@ -1,4 +1,4 @@
-# import boto3
+import boto3
 from classes import Person
 from classes import Car, Event
 

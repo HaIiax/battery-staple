@@ -1,11 +1,11 @@
 import time
-#import boto3
+import boto3
 import uuid
 import traceback
 
 
 class Athena:
-    # client = boto3.client('athena')
+    client = boto3.client('athena')
 
     @classmethod
     def executeQueryToRows(cls, query):
