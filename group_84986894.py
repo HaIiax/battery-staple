@@ -1,6 +1,8 @@
 from storage import Storage
 from classes import Car, Event, EventOptOut
 from queries import Queries
+from testqueries import TestQueries
+from rideschedule import RideSchedule
 
 def run(storer, data, bot_info, send):
 
@@ -19,9 +21,9 @@ def run(storer, data, bot_info, send):
         send("Hi there! Your bot is working, you should start customizing it now.", bot_info[0])
         return True
 
-    if message.startswith('.car'):
+    if message.startswith('.car '):
         car = Car.newCar(data)
-        car_parts = message.removeprefix('.car').split(',') # add delete remove , seats , model , parking_location
+        car_parts = message.removeprefix('.car ').split(',') # add delete remove , seats , model , parking_location
 
         if car_parts[0].strip()[:1].lower() == 'a':
             if len(car_parts) != 4:
@@ -42,9 +44,9 @@ def run(storer, data, bot_info, send):
         send("Error in format for .car command. Should be '.car add, seats, model, parking_location' OR '.car remove'", bot_info[0])
         return True
 
-    if message.startswith('.event'):
+    if message.startswith('.event '):
         event = Event.newEvent()
-        event_parts = message.removeprefix('.event').split(',') # add delete remove / seats / model / parking_location
+        event_parts = message.removeprefix('.event ').split(',') # add delete remove / seats / model / parking_location
         if event_parts[0].strip()[:1].lower() == 'a':
             if len(event_parts) != 3:
                 send("Not enough data. Check to see that there are 2 commas in your command", bot_info[0])
@@ -74,7 +76,7 @@ def run(storer, data, bot_info, send):
              bot_info[0])
         return True
 
-    if message.startswith('.notgoing'):
+    if message == '.notgoing':
         current_event_date = Queries.getCurrentEventDate()
         if current_event_date is None:
             send("No current event. Try again later", bot_info[0])
@@ -85,7 +87,7 @@ def run(storer, data, bot_info, send):
         send("You have been opted out of the event on " + current_event_date, bot_info[0])
         return True
 
-    if message.startswith('.going'):
+    if message == '.going':
         current_event_date = Queries.getCurrentEventDate()
         if current_event_date is None:
             send("No current event. Try again later", bot_info[0])
@@ -96,7 +98,22 @@ def run(storer, data, bot_info, send):
         send("You have been opted into the event on " + current_event_date, bot_info[0])
         return True
 
-    if message.startswith('.user'):
+    if message == '.generate':
+        current_event_date = Queries.getCurrentEventDate()
+        if current_event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        Queries.setImplementation(TestQueries())
+        event_date = Queries.getCurrentEventDate()
+        rs = RideSchedule(event_date)
+        rs.setCars(Queries.getCars())
+        rs.setRiders(Queries.getRiders())
+        rs.computeSchedule()
+        storer.upsert(rs)
+        send("Generation of rides started", bot_info[0])
+        return True
+
+    if message.startswith('.user '):
         user_parts = message.removeprefix('.user').split(',')
         if len(user_parts) != 2:
             send("Not enough data. Check to see that there is 1 comma in your command", bot_info[0])

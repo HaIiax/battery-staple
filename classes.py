@@ -113,6 +113,36 @@ class EventOptOut:
         obj.user_id = data['user_id']
         return obj
 
+class EventRide:
+    def __init__(self, event_date=None, user_id=None, car_id=None, time=None, location=None):
+        self.event_date = event_date
+        self.user_id = user_id
+        self.car_id = car_id
+        self.time = time
+        self.location = location
+
+    def pk(self):
+        return 'EventRide/' + self.event_date + '/' + self.user_id
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+    def __str__(self):
+        return self.toJson()
+
+    @classmethod
+    def asEventRide(cls, jsonString):
+        event = cls()
+        event.__dict__ = json.loads(jsonString)
+        return event
+
+    @classmethod
+    def newEventRide(cls):
+        event = cls()
+        return event
+
+
+
 
 
 
