@@ -1,3 +1,4 @@
+from typing import Any
 from athena import Athena
 
 
@@ -15,6 +16,9 @@ class QueryTemplate:
     def getCars(self):
         self.fail()
 
+    def getCurrentEventRide(self):
+        self.fail()
+
 
 class _AthenaQueries(QueryTemplate):
 
@@ -26,10 +30,13 @@ class _AthenaQueries(QueryTemplate):
 
     def getRiders(self):
         return Athena.executeQueryToRows(
-            "select user_id, name, time, location, event_date, event_name from current_riders order by name")
+            "select user_id, time, location, event_date from current_riders order by time, count(*) over (partition by time, location) desc, location, name")
 
     def getCars(self):
-        return Athena.executeQueryToRows("select owner, seats, model, parking_spot from car")
+        return Athena.executeQueryToRows("select owner, cast(seats as bigint) as seats, model, parking_spot from car order by seats desc, model limit 3")
+
+    def getCurrentEventRide(self):
+        return Athena.executeQueryToRows("select event_date, event_name, time, location, car_owner_name as driver_name, car_id, model, rider_name, user_id from current_event_ride order by time, location, model, rider_name")
 
 
 class Queries:
@@ -41,13 +48,17 @@ class Queries:
         cls._impl = impl
 
     @classmethod
-    def getCurrentEventDate(cls):
+    def getCurrentEventDate(cls) -> Any:
         return cls._impl.getCurrentEventDate()
 
     @classmethod
-    def getRiders(cls):
+    def getRiders(cls) -> Any:
         return cls._impl.getRiders()
 
     @classmethod
-    def getCars(cls):
+    def getCars(cls) -> Any:
         return cls._impl.getCars()
+
+    @classmethod
+    def getCurrentEventRide(cls) -> Any:
+        return cls._impl.getCurrentEventRide()

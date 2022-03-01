@@ -1,7 +1,7 @@
 import json
 
 class RideSchedule:
-    def __init__(self, event_date=None) -> None:
+    def __init__(self, event_date=None):
         self.event_date = event_date
         self._schedule = None
 
@@ -29,61 +29,56 @@ class RideSchedule:
         for rider in self.riders:
             candidate_rider.addRider(rider)
         car_master = CarMaster(candidate_rider.getTimes(), self.cars)
-        candidate_rider.setCarMaster(car_master)
-        candidate_rider.scheduleRiders()
+        candidate_rider.scheduleRiders(car_master)
         self._schedule = car_master.results(self.event_date)
 
 class CandidateRiders:
     def __init__(self):
         self.time_struct = {}
-        self.car_master = None
 
     def __str__(self):
         return str(self.time_struct)
 
-    def pushRiders(self, previous, current):
+    def pushRiders(self, previous, current, car_master):
         print("previous: " + str(previous) + '; current: ' + str(current))
         location_rider_struct = self.time_struct[previous]
         for current_location in location_rider_struct:
             location_rider = location_rider_struct[current_location]
             while len(location_rider) > 0:
                 rider = location_rider.pop()
-                success = self.car_master.offerRider(rider, current_location, current)
+                success = car_master.offerRider(
+                    rider, current_location, current)
                 if not success:
                     location_rider.append(rider)
                     return False
         return True
 
-    def scheduleRiders(self):
+    def scheduleRiders(self, car_master):
         previous_time = []
         for current_time in self.getTimes():
             while len(previous_time) > 0:
                 print("Pushing")
-                success = self.pushRiders(previous_time[0], current_time)
+                success = self.pushRiders(previous_time[0], current_time, car_master)
                 if not success:
                     break
                 previous_time = previous_time[1:]
-            success = self.scheduleTime(current_time)
+            success = self.scheduleTime(current_time, car_master)
             if not success:
                 previous_time.append(current_time)
 
-    def scheduleTime(self, current_time):
+    def scheduleTime(self, current_time, car_master):
         location_rider_struct = self.time_struct[current_time]
         for current_location in location_rider_struct:
             location_rider = location_rider_struct[current_location]
             while len(location_rider) > 0:
                 rider = location_rider.pop()
-                success = self.car_master.offerRider(rider, current_location, current_time)
+                success = car_master.offerRider(
+                    rider, current_location, current_time)
                 if not success:
                     location_rider.append(rider)
                     return False
 
         return True
-
-
-
-    def setCarMaster(self, car_master):
-        self.car_master = car_master
 
     def getTimes(self):
         return self.time_struct.keys()
@@ -112,9 +107,8 @@ class CarMaster:
         for current_time in times:
             car_struct = self.car_time_struct[current_time]
             for current_car in cars:
-                cabin = {'seats': int(current_car['seats']), 'riders': []}
+                cabin = {'seats': int(current_car['seats']), 'riders': [], 'preferred_location': None}
                 car_struct[current_car['owner']] = cabin
-
 
     def __str__(self):
         return str(self.car_time_struct)
@@ -139,6 +133,22 @@ class CarMaster:
     def offerRider(self, user_id, location, time):
         car_struct = self.car_time_struct[time]
         # print(car_struct)
+
+        # Fit one location per time+car
+        for car_id in car_struct:
+            car = car_struct[car_id]
+            car_seats = car['seats']
+            riders = car['riders']
+            preferred_location = car['preferred_location']
+            if preferred_location is None:
+                preferred_location = location
+                car['preferred_location'] = location
+            if location == preferred_location and len(riders) < car_seats:
+                # it fits
+                riders.append([user_id, location])
+                return True
+
+        # Multiple pickups
         for car_id in car_struct:
             car = car_struct[car_id]
             car_seats = car['seats']
@@ -147,10 +157,5 @@ class CarMaster:
                 # it fits
                 riders.append([user_id, location])
                 return True
+
         return False
-
-
-
-
-
-

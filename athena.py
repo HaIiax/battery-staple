@@ -65,9 +65,9 @@ class Athena:
 
 """
 [
-    {'Data':
-        [{'VarCharValue': 'owner'}, {'VarCharValue': 'seats'}, {'VarCharValue': 'model'}, {'VarCharValue': 'parking_spot'}]},
-    {'Data':
+    {'Data': 
+        [{'VarCharValue': 'owner'}, {'VarCharValue': 'seats'}, {'VarCharValue': 'model'}, {'VarCharValue': 'parking_spot'}]}, 
+    {'Data': 
         [{'VarCharValue': '72255120'}, {'VarCharValue': '4'}, {'VarCharValue': 'Honda Accord'}, {'VarCharValue': 'Septa Station'}]}
 ]
 """

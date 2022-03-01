@@ -140,7 +140,7 @@ class TestQueries(QueryTemplate):
                 person_owner = random.choice(persons)["user_id"]
             used[person_owner] = True
             car = {}
-            car["owner"] = "car-" + person_owner
+            car["owner"] = person_owner
             carparts = cardata.split(";")
             car["model"] = carparts[0]
             car["seats"] = carparts[1]

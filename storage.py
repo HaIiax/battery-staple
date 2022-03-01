@@ -1,7 +1,5 @@
 import boto3
 from classes import Person
-from classes import Car, Event
-
 
 class Storage:
     def __init__(self):
@@ -23,6 +21,21 @@ class Storage:
             self.client.delete_object(Bucket='battery-staple-v1', Key=key)
         except:
             return
+
+    def presignURL(self, key):
+        return self.client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': 'battery-staple-v1', 'Key': key},
+            ExpiresIn=7*24*60*60)
+
+    def putAsHtml(self, key, content):
+        key = "html/" + key
+        self.client.put_object(
+            Bucket='battery-staple-v1', 
+            Key=key, 
+            Body=content.encode('utf-8'),
+            ContentType='text/html')
+        return self.presignURL(key)
 
     def upsert_person(self, data):
         user_id = data['user_id']
