@@ -1,11 +1,11 @@
 from storage import Storage
-from classes import Car, Event, EventOptOut
+from classes import Car, Event, EventOptOut, EventDriver
 from queries import Queries
 from testqueries import TestQueries
 from rideschedule import RideSchedule
 
-def run(storer, data, bot_info, send):
 
+def run(storer, data, bot_info, send):
     help_message = "Help:\n.help  -->  This screen\n.test  -->  Try it!\nOtherwise, repeats your message."
 
     person = storer.upsert_person(data)
@@ -23,7 +23,7 @@ def run(storer, data, bot_info, send):
 
     if message.startswith('.car '):
         car = Car.newCar(data)
-        car_parts = message.removeprefix('.car ').split(',') # add delete remove , seats , model , parking_location
+        car_parts = message.removeprefix('.car ').split(',')  # add delete remove , seats , model , parking_location
 
         if car_parts[0].strip()[:1].lower() == 'a':
             if len(car_parts) != 4:
@@ -41,12 +41,13 @@ def run(storer, data, bot_info, send):
             send("removed car: " + str(car), bot_info[0])
             return True
 
-        send("Error in format for .car command. Should be '.car add, seats, model, parking_location' OR '.car remove'", bot_info[0])
+        send("Error in format for .car command. Should be '.car add, seats, model, parking_location' OR '.car remove'",
+             bot_info[0])
         return True
 
     if message.startswith('.event '):
         event = Event.newEvent()
-        event_parts = message.removeprefix('.event ').split(',') # add delete remove / seats / model / parking_location
+        event_parts = message.removeprefix('.event ').split(',')  # add delete remove / seats / model / parking_location
         if event_parts[0].strip()[:1].lower() == 'a':
             if len(event_parts) != 3:
                 send("Not enough data. Check to see that there are 2 commas in your command", bot_info[0])
@@ -72,8 +73,9 @@ def run(storer, data, bot_info, send):
             send("Removed event: " + str(event), bot_info[0])
             return True
 
-        send("Error in format for .event command. Should be '.event add, event_date, name' OR '.event remove, event_date'",
-             bot_info[0])
+        send(
+            "Error in format for .event command. Should be '.event add, event_date, name' OR '.event remove, event_date'",
+            bot_info[0])
         return True
 
     if message == '.notgoing':
@@ -122,7 +124,27 @@ def run(storer, data, bot_info, send):
         person.time = user_parts[0].strip()
         person.location = user_parts[1].strip()
         storer.upsert(person)
-        send("Updated Person: " + str(person) ,bot_info[0])
+        send("Updated Person: " + str(person), bot_info[0])
+        return True
+
+    if message == '.driving':
+        current_event_date = Queries.getCurrentEventDate()
+        if current_event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        event_driver = EventDriver.newEventDriver(data, current_event_date)
+        storer.upsert(event_driver)
+        send("You have been added to the list of drivers for the event on " + current_event_date, bot_info[0])
+        return True
+
+    if message == '.notdriving':
+        current_event_date = Queries.getCurrentEventDate()
+        if current_event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        event_driver = EventDriver.newEventDriver(data, current_event_date)
+        storer.remove(event_driver)
+        send("You have been removed from the list of drivers for the event on " + current_event_date, bot_info[0])
         return True
 
     send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])

@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
+
 class Person:
-    def __init__(self, user_id = None, name = None, time = None, location = None):
+    def __init__(self, user_id=None, name=None, time=None, location=None):
         self.user_id = user_id
         self.name = name
         self.time = time
@@ -23,8 +24,9 @@ class Person:
         person.__dict__ = json.loads(jsonString)
         return person
 
+
 class Car:
-    def __init__(self, owner = None, seats = None, model = None, parking_spot = None):
+    def __init__(self, owner=None, seats=None, model=None, parking_spot=None):
         self.owner = owner
         self.seats = seats
         self.model = model
@@ -77,7 +79,6 @@ class Event:
         event = cls()
         return event
 
-
     def setEventDate(self, date):
         try:
             tmp = datetime.strptime(date, '%m/%d/%Y')
@@ -113,6 +114,7 @@ class EventOptOut:
         obj.user_id = data['user_id']
         return obj
 
+
 class EventRide:
     def __init__(self, event_date=None, user_id=None, car_id=None, time=None, location=None):
         self.event_date = event_date
@@ -142,6 +144,30 @@ class EventRide:
         return event
 
 
+class EventDriver:
+    def __init__(self, event_date=None, user_id=None):
+        self.event_date = event_date
+        self.user_id = user_id
 
+    def pk(self):
+        return 'EventDriver/' + self.event_date + '/' + self.user_id
 
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+    def __str__(self):
+        return self.toJson()
+
+    @classmethod
+    def asEventDriver(cls, jsonString):
+        obj = cls()
+        obj.__dict__ = json.loads(jsonString)
+        return obj
+
+    @classmethod
+    def newEventDriver(cls, data, event_date):
+        obj = cls()
+        obj.owner = data['user_id']
+        obj.event_date = event_date
+        return obj
 

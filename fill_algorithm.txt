@@ -1,0 +1,17 @@
+sum seats in cars
+if total people that need rides at all locations is greater than seats available
+    figure out who to push back to next time: people that get pushed back shouldn't get pushed back again, have priority
+    if you can reduce the num of ppl at a location to 0 by push back that is preferred
+    else it probably doesn't matter
+after people get pushed back, num of people that need rides should be equal to seats
+cars will be in list, thier position in list will change for each time (maybe random, maybe 12345 --> 23451)
+    this is so the same person is less likely to have to go to multiple locations per trip
+for car 1, candidate list if created of the locations that have num ppl greater than or equal to num seats in car
+if num ppl at location A minus the seats equal 0, send car there.
+if num ppl at location A minus the seats equals the amount of seats in a car remaining, send car A and car N there
+if num ppl at location A minus the seats equals a value of cartesian product with 2 values (i.e car C + car D or ...) send there
+repeat for following cars until there are no locations that the next car can fill at
+this means that the candidate list will be empty
+now
+#need to check if next car is filled by A + B or A + C or B + C
+
