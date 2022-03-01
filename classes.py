@@ -167,7 +167,7 @@ class EventDriver:
     @classmethod
     def newEventDriver(cls, data, event_date):
         obj = cls()
-        obj.owner = data['user_id']
+        obj.user_id = data['user_id']
         obj.event_date = event_date
         return obj
 
