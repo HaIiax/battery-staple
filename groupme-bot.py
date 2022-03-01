@@ -5,9 +5,9 @@ Developed by Paul Pfeister
 """
 import os
 from storage import Storage
-from athena import Athena
 import sys
 import requests
+from athena import Athena
 import importlib
 from flask import Flask, request
 
@@ -67,7 +67,7 @@ for group in BOT_INFO:
 
 
 storer = Storage()
-print(Athena.executeQueryToRows('select user_id, name, time, location from person'))
+print(Athena.executeQuery('select try_cast(user_id as bigint) as user_id, name, time, location from person'))
 #######################################################################################################
 ######################## Helper functions #############################################################
 
@@ -106,8 +106,7 @@ def send_message(msg, bot_id):
             'bot_id' : bot_id,
             'text' : msg,
             }
-# We don't have a groupme account and thus we don't have a bot id; don't annoy group me.
-#    requests.post(POST_TO, json=data)
+    requests.post(POST_TO, json=data)
 
 #######################################################################################################
 ######################## The actual bot ###############################################################
@@ -117,7 +116,7 @@ app = Flask(__name__)
 @app.route('/', methods=['POST'])
 def webhook():
     data = request.get_json()
-    
+
     logmsg(data)
 
     # Prevent the bot from acting on its own messages
@@ -125,9 +124,9 @@ def webhook():
         return "ok", 200
 
     if data['group_id'] in GROUP_RULES:
-        if GROUP_RULES[data['group_id']].run(data, BOT_INFO[data['group_id']], send_message):
+        if GROUP_RULES[data['group_id']].run(storer, data, BOT_INFO[data['group_id']], send_message):
             return "ok", 200
 
-    GLOBAL_RULES.run(storer, data, BOT_INFO[data['group_id']], send_message)
+    # GLOBAL_RULES.run(storer, data, BOT_INFO[data['group_id']], send_message)
 
     return "ok", 200
