@@ -65,7 +65,7 @@ for group in BOT_INFO:
         if group in GROUP_RULES: del GROUP_RULES[group]
         if DEBUG: print(errcol.debug + "Group rules not found for [G:{}]".format(group) + errcol.tail)
 
-from security import Security
+from command_security import Security
 security = Security(os.getenv('PERMISSIONS'))
 storer = Storage()
 

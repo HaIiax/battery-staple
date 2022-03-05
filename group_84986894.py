@@ -3,7 +3,7 @@ from classes import Car, Event, EventOptOut, EventDriver
 from queries import Queries
 from rideschedulepublisher import RideSchedulePublisher
 from rideschedule import RideSchedule
-from security import Security
+from command_security import Security
 
 
 def run(storer, security: Security, data, bot_info, send):
