@@ -141,12 +141,14 @@ class CarMaster:
                     event_rider['user_id'] = rider[0]
                     result.append(event_rider)
 
-        # If we have excess drivers, create a single event_rider with after time and null rider
+        # Give all drivers a Guest time
+        # (Was: If we have excess drivers, create a single event_rider with after time and null rider)
+        # if True implements all drivers get a Guest time
         if last_time is not None:
             current_time = "> " + last_time
             for driver in self.driver_ids:
                 driver_struct = self.driver_ids[driver]
-                if not driver_struct['used']:
+                if True or not driver_struct['used']:
                     event_rider = {}
                     event_rider['event_date'] = event_date
                     event_rider['time'] = current_time
