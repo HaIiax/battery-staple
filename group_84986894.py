@@ -142,8 +142,11 @@ def run(helper: Helper, data, bot_info, send):
         if len(user_parts) != 2:
             send("Not enough data. Check to see that there is 1 comma in your command", bot_info[0])
             return True
+        normalizer = helper.location_normalizer
         person.time = user_parts[0].strip()
-        person.location = user_parts[1].strip()
+        person.location = normalizer.normalize(user_parts[1].strip())
+        if person.location is None:
+            send("Not a valid location. The valid locations are: " + str(normalizer.location_list), bot_info[0])
         storer.upsert(person)
         send("Updated Person: " + str(person), bot_info[0])
         return True
