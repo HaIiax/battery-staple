@@ -1,6 +1,6 @@
 class Security:
-    def __init__(self, security_definition):
-        self.security_definition = security_definition
+    def __init__(self, security_definition: str):
+        self.security_definition = security_definition.replace(" ", "")
         self.security_dict = {}
         if self.security_definition is not None:
             for permitted_command_users in security_definition.split(";"):
