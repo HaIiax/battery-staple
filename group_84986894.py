@@ -4,10 +4,13 @@ from queries import Queries
 from rideschedulepublisher import RideSchedulePublisher
 from rideschedule import RideSchedule
 from command_security import Security
+from helper import Helper
 
 
-def run(storer, security: Security, data, bot_info, send):
+def run(helper: Helper, data, bot_info, send):
     help_message = "Help:\n.help  -->  This screen\n.test  -->  Try it!\nOtherwise, repeats your message."
+    storer: Storage = helper.storage
+    security: Security = helper.command_security
 
     person = storer.upsert_person(data)
     print(person)
