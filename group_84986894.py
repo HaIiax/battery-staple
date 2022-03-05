@@ -3,15 +3,22 @@ from classes import Car, Event, EventOptOut, EventDriver
 from queries import Queries
 from rideschedulepublisher import RideSchedulePublisher
 from rideschedule import RideSchedule
+from security import Security
 
 
-def run(storer, data, bot_info, send):
+def run(storer, security: Security, data, bot_info, send):
     help_message = "Help:\n.help  -->  This screen\n.test  -->  Try it!\nOtherwise, repeats your message."
 
     person = storer.upsert_person(data)
     print(person)
 
     message: str = data['text']
+
+    command = message.split(" ")[0]
+
+    if not security.isPermitted(command, person.user_id):
+        send("Sorry, not authorized", bot_info[0])
+        return True
 
     if message == '.help':
         send(help_message, bot_info[0])
