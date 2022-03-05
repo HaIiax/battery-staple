@@ -158,5 +158,6 @@ def run(storer, data, bot_info, send):
         send("You have been removed from the list of drivers for the event on " + current_event_date, bot_info[0])
         return True
 
-    send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])
+    # repeats any other message sent
+    # send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])
     return True
