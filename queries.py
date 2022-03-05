@@ -10,6 +10,9 @@ class QueryTemplate:
     def getCurrentEventDate(self):
         self.fail()
 
+    def getCurrentEvent(self):
+        self.fail()
+
     def getRiders(self):
         self.fail()
 
@@ -27,6 +30,12 @@ class _AthenaQueries(QueryTemplate):
         if result is None or len(result) == 0:
             return None
         return result[0]['event_date']
+
+    def getCurrentEvent(self):
+        result = Athena.executeQueryToRows('select event_date, pickup_time, pickup_interval from current_event')
+        if result is None or len(result) == 0:
+            return None
+        return result[0]
 
     def getRiders(self, event_date=None):
         if False:
@@ -62,6 +71,10 @@ class Queries:
     @classmethod
     def getCurrentEventDate(cls) -> Any:
         return cls._impl.getCurrentEventDate()
+
+    @classmethod
+    def getCurrentEvent(cls) -> Any:
+        return cls._impl.getCurrentEvent()
 
     @classmethod
     def getRiders(cls, event_date=None) -> Any:

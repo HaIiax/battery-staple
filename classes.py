@@ -18,6 +18,16 @@ class Person:
     def pk(self):
         return "Person/" + self.user_id
 
+    def setTime(self, time):
+        try:
+            tmp = int(time)
+            if tmp < 1 or tmp > 9:
+                return "Pickup time must be between 1 and 9"
+            self.time = str(tmp)
+            return None
+        except BaseException as err:
+            return str(err)
+
     @classmethod
     def asPerson(cls, jsonString):
         person = cls()
@@ -85,6 +95,24 @@ class Event:
         try:
             tmp = datetime.strptime(date, '%m/%d/%Y')
             self.event_date = tmp.strftime('%Y-%m-%d')
+            return None
+        except BaseException as err:
+            return str(err)
+
+    def setPickupTime(self, time):
+        try:
+            tmp = datetime.strptime(time, '%H:%M')
+            self.pickup_time = tmp.strftime('%H:%M')
+            return None
+        except BaseException as err:
+            return str(err)
+
+    def setPickupInterval(self, interval):
+        try:
+            tmp = int(interval)
+            if tmp < 1 or tmp > 90:
+                return "Pickup interval must be between 1 and 90 minutes"
+            self.pickup_interval = str(tmp)
             return None
         except BaseException as err:
             return str(err)

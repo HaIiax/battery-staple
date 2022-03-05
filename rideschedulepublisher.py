@@ -1,15 +1,27 @@
-import os
+import os, time
 
 from queries import Queries
 
 
 class RideSchedulePublisher:
-    def __init__(self, event_date=None):
+    def __init__(self, event_date, pickup_time, pickup_interval):
         self.event_date = event_date
-        if self.event_date is None:
-            self.event_date = Queries.getCurrentEventDate()
+        self.interval = int(pickup_interval)
+        tm = time.strptime(pickup_time, "%H:%M") # .tm_hour .tm_min
+        self.pickup = tm.tm_hour * 60 + tm.tm_min
         with open(os.path.realpath(__file__).replace('.py', '.js')) as jsstring:
             self.js = jsstring.read()
+
+    def toFormattedTime(self, time: str):
+        gt = ""
+        if time.startswith('> '):
+            time = time[2:]
+            gt = "> "
+        offset = self.interval * (int(time) - 1)
+        minutes = self.pickup + offset
+        hour = int(minutes/60)
+        minutes_in_hour = minutes % 60
+        return gt + "{:02d}:{:02d}".format(hour, minutes_in_hour)
 
     def asHTML(self):
         import makeHTML
@@ -85,7 +97,7 @@ class RideSchedulePublisher:
                         style="panel-tabs", id=nav_id)
                 time_count += 1
                 time_tabs.addPart('a', style="time-link",
-                                  content=time, attributes={"data-target": time})
+                                  content=self.toFormattedTime(time), attributes={"data-target": time})
                 time_div = time_panel.addPart(
                     'div', style="panel-block", id=time).addPart('div', style="columns")
                 ptime = time
@@ -98,7 +110,7 @@ class RideSchedulePublisher:
                 location_card = time_div.addPart('div', style="column").addPart(
                     'div', style="card has-background-grey has-text-light")
                 location_card.addPart('header', style="card-header").addPart(
-                    style="card-header-title has-background-light", content=location + " @" + time)
+                    style="card-header-title has-background-light", content=location + " @" + self.toFormattedTime(time))
 
             if pmodel != model:
                 pmodel = model
@@ -150,7 +162,7 @@ class RideSchedulePublisher:
                 ptime = time
                 plocation = None
                 time_content = driver_card.addPart(
-                    'div', style="card-content", content=time)
+                    'div', style="card-content", content=self.toFormattedTime(time))
 
             if plocation != location:
                 plocation = location

@@ -26,10 +26,12 @@ def testCompute() -> RideSchedule:
 
 s = Storage()
 
-if False:
+if True:
     e=Event()
-    print(e.setEventDate("3/6/2022"))
+    print(e.setEventDate('3/6/2022'))
     e.name='First Sunday in March'
+    print(e.setPickupTime("8:20"))
+    print(e.setPickupInterval("17"))
     print(e)
     s.upsert(e)
 
@@ -75,5 +77,6 @@ if True:
     s.upsert(rs)
 
 if True:
-    rsp=RideSchedulePublisher(event_date)
-    print(s.putAsHtml(event_date + "/ride-index/index.html", rsp.asHTML()))
+    event = Queries.getCurrentEvent()
+    rsp=RideSchedulePublisher(event['event_date'], event['pickup_time'], event['pickup_interval'])
+    print(s.putAsHtml("html/" + event_date + "/ride-index/index.html", rsp.asHTML()))

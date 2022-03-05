@@ -57,16 +57,24 @@ def run(helper: Helper, data, bot_info, send):
 
     if message.startswith('.event '):
         event = Event.newEvent()
-        event_parts = message.removeprefix('.event ').split(',')  # add delete remove / seats / model / parking_location
+        event_parts = message.removeprefix('.event ').split(',')  # add remove, date, name, pickup time, pickup interval
         if event_parts[0].strip()[:1].lower() == 'a':
-            if len(event_parts) != 3:
-                send("Not enough data. Check to see that there are 2 commas in your command", bot_info[0])
+            if len(event_parts) != 5:
+                send("Not enough data. Check to see that there are 4 commas in your command", bot_info[0])
                 return True
             result = event.setEventDate(event_parts[1].strip())
             if result is not None:
                 send("Error in date input." + str(result), bot_info[0])
                 return True
             event.name = event_parts[2].strip()
+            result = event.setPickupTime(event_parts[3].strip())
+            if result is not None:
+                send("Error in pickup time." + str(result), bot_info[0])
+                return True
+            result = event.setPickupInterval(event_parts[4].strip())
+            if result is not None:
+                send("Error in pickup interval." + str(result), bot_info[0])
+                return True
             storer.upsert(event)
             send("Added event: " + str(event), bot_info[0])
             return True
@@ -121,7 +129,8 @@ def run(helper: Helper, data, bot_info, send):
         rs.setRiders(Queries.getRiders(event_date))
         rs.computeSchedule()
         storer.upsert(rs)
-        rsp = RideSchedulePublisher(event_date)
+        event = Queries.getCurrentEvent()
+        rsp = RideSchedulePublisher(event['event_date'], event['pickup_time'], event['pickup_interval'])
         schedule_html = rsp.asHTML()
         schedule_html_url = storer.putAsHtml("html/" + event_date + "/ride-index/index.html", schedule_html)
 
@@ -143,7 +152,9 @@ def run(helper: Helper, data, bot_info, send):
             send("Not enough data. Check to see that there is 1 comma in your command", bot_info[0])
             return True
         normalizer = helper.location_normalizer
-        person.time = user_parts[0].strip()
+        result = person.setTime(user_parts[0].strip())
+        if result is not None:
+            send("Error in pickup time." + str(result), bot_info[0])
         person.location = normalizer.normalize(user_parts[1].strip())
         if person.location is None:
             send("Not a valid location. The valid locations are: " + str(normalizer.location_list), bot_info[0])

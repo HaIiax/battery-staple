@@ -17,7 +17,9 @@ TBLPROPERTIES (
 
 CREATE EXTERNAL TABLE `event`(
   `event_date` string COMMENT 'from deserializer',
-  `name` string COMMENT 'from deserializer')
+  `name` string COMMENT 'from deserializer',
+  `pickup_time` string COMMENT 'from deserializer',
+  `pickup_interval` string COMMENT 'from deserializer')
 ROW FORMAT SERDE
   'org.openx.data.jsonserde.JsonSerDe'
 STORED AS INPUTFORMAT
@@ -162,6 +164,8 @@ CREATE OR REPLACE VIEW "current_event" AS
 SELECT
   event_date
 , name
+, pickup_time
+, pickup_interval
 FROM
   event
 WHERE (event_date = (SELECT "min"(event_date)
