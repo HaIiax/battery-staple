@@ -55,9 +55,11 @@ class Car:
 
 
 class Event:
-    def __init__(self, event_date=None, name=None):
+    def __init__(self, event_date=None, name=None, pickup_time=None, pickup_interval=None):
         self.event_date = event_date
         self.name = name
+        self.pickup_time = pickup_time
+        self.pickup_interval = pickup_interval
 
     def pk(self):
         return 'Event/' + self.event_date
