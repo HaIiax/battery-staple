@@ -28,15 +28,27 @@ class _AthenaQueries(QueryTemplate):
             return None
         return result[0]['event_date']
 
-    def getRiders(self):
-        return Athena.executeQueryToRows(
-            "select user_id, time, location, event_date from current_riders order by time, count(*) over (partition by time, location) desc, location, name")
+    def getRiders(self, event_date=None):
+        if False:
+            return Athena.executeQueryToRows(
+                "select user_id, time, location, event_date from current_riders order by time, count(*) over (partition by time, location) desc, location, random(), name")
+        if event_date is None:
+            event_date = self.getCurrentEventDate()
+        return Athena.executeQueryToRows("execute current_riders_query using '" + event_date + "', '"  + event_date + "', '"  + event_date + "', '" + event_date + "', '" + event_date + "'")
 
-    def getCars(self):
-        return Athena.executeQueryToRows("select owner, cast(seats as bigint) as seats, model, parking_spot from car order by seats desc, model limit 3")
+    def getCars(self, event_date=None):
+        if False:
+            return Athena.executeQueryToRows("select owner, driver_id, seats, model, parking_spot FROM current_event_drivers order by seats desc, random(), model")
+        if event_date is None:
+            event_date = self.getCurrentEventDate()
+        return Athena.executeQueryToRows("execute current_event_drivers_query using '" + event_date + "', '" + event_date + "', '" + event_date + "', '" + event_date + "', '"  + event_date + "', '" + event_date + "'")
 
-    def getCurrentEventRide(self):
-        return Athena.executeQueryToRows("select event_date, event_name, time, location, car_owner_name as driver_name, car_id, model, rider_name, user_id from current_event_ride order by time, location, model, rider_name")
+    def getCurrentEventRide(self, event_date=None):
+        if False:
+            return Athena.executeQueryToRows("select event_date, event_name, time, location, driver_name, car_id, model, seats, parking_spot, rider_name, user_id from current_event_ride order by time, location, model, rider_name")
+        if event_date is None:
+            event_date = self.getCurrentEventDate()
+        return Athena.executeQueryToRows("execute current_event_ride_query using '" + event_date + "'")
 
 
 class Queries:
@@ -52,13 +64,13 @@ class Queries:
         return cls._impl.getCurrentEventDate()
 
     @classmethod
-    def getRiders(cls) -> Any:
-        return cls._impl.getRiders()
+    def getRiders(cls, event_date=None) -> Any:
+        return cls._impl.getRiders(event_date)
 
     @classmethod
-    def getCars(cls) -> Any:
-        return cls._impl.getCars()
+    def getCars(cls, event_date=None) -> Any:
+        return cls._impl.getCars(event_date)
 
     @classmethod
-    def getCurrentEventRide(cls) -> Any:
-        return cls._impl.getCurrentEventRide()
+    def getCurrentEventRide(cls, event_date=None) -> Any:
+        return cls._impl.getCurrentEventRide(event_date)

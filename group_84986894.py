@@ -1,7 +1,7 @@
 from storage import Storage
 from classes import Car, Event, EventOptOut, EventDriver
 from queries import Queries
-from testqueries import TestQueries
+from rideschedulepublisher import RideSchedulePublisher
 from rideschedule import RideSchedule
 
 
@@ -101,19 +101,21 @@ def run(storer, data, bot_info, send):
         return True
 
     if message == '.generate':
-        Queries.setImplementation(TestQueries())
-        current_event_date = Queries.getCurrentEventDate()
-        if current_event_date is None:
+        event_date = Queries.getCurrentEventDate()
+        if event_date is None:
             send("No current event. Try again later", bot_info[0])
             return True
 
-        event_date = Queries.getCurrentEventDate()
         rs = RideSchedule(event_date)
-        rs.setCars(Queries.getCars())
-        rs.setRiders(Queries.getRiders())
+        rs.setCars(Queries.getCars(event_date))
+        rs.setRiders(Queries.getRiders(event_date))
         rs.computeSchedule()
         storer.upsert(rs)
-        send("Generation of rides started", bot_info[0])
+        rsp = RideSchedulePublisher(event_date)
+        schedule_html = rsp.asHTML()
+        schedule_html_url = storer.putAsHtml(event_date + "/ride-index/index.html", schedule_html)
+
+        send("Generation of rides completed. URL: " + schedule_html_url, bot_info[0])
         return True
 
     if message.startswith('.user '):

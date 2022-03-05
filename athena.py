@@ -88,7 +88,10 @@ class _ResultSet:
                 row = {}
                 row_index = 0
                 for data in result_row['Data']:
-                    row[cols[row_index]] = (data["VarCharValue"])
+                    if "VarCharValue" in data:
+                        row[cols[row_index]] = (data["VarCharValue"])
+                    else:
+                        row[cols[row_index]] = "" # null value to empty string
                     row_index += 1
                 self.rows.append(row)
 
