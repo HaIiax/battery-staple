@@ -66,10 +66,13 @@ for group in BOT_INFO:
         if DEBUG: print(errcol.debug + "Group rules not found for [G:{}]".format(group) + errcol.tail)
 
 from command_security import Security
+from location_normalizer import LocationNormalizer
 from helper import Helper
 security = Security(os.getenv('PERMISSIONS'))
 storer = Storage()
-helper = Helper(storer, security)
+normalizer = LocationNormalizer(os.getenv('LOCATIONS'))
+helper = Helper(storer, security, normalizer)
+
 
 #######################################################################################################
 ######################## Helper functions #############################################################
