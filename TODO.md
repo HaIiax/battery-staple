@@ -1,21 +1,21 @@
 # TODO's
 
-## Rename security.py
+## ~~Rename security.py~~
 
-- ~Seems to have special meaning to github~
+- Seems to have special meaning to github
 
-## Create Helper Class
+## ~~Create Helper Class~~
 
-- ~Passed as first argument to run() function~
+- Passed as first argument to run() function
 - Holds initialized instances of
-    - ~Storage~
-    - ~Security~
+    - Storage
+    - Security
     - LocationNormalizer
     - ... future helpers
-- ~Create instance in groupme-bot.py, set instances of Storage, Security and LocationNormalizer~
-- ~Avoids having to modify the run() signature and callers each time a new helper is needed~
+- Create instance in groupme-bot.py, set instances of Storage, Security and LocationNormalizer
+- Avoids having to modify the run() signature and callers each time a new helper is needed
 
-## Normalize Location Names
+## ~~Normalize Location Names~~
 
 - Init with environment variable, comma delimited list of unique location names
 - Remove spaces before processing to list of string
@@ -29,7 +29,7 @@
     - person.location = normalizer.normalize(location)
     - if person.location is None, get list of valid locations from the normalizer and send back as message to user
 
-## Change Person time attribute to ordinal
+## ~~Change Person time attribute to ordinal~~
 
 - Add to event table pickup_time (hh:mm) and pickup_interval (minutes)
 - Change person table time attribute to integer
