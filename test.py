@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 from testqueries import TestQueries
 from athena import Athena
@@ -5,23 +7,45 @@ from storage import Storage
 from queries import Queries
 from rideschedule import RideSchedule
 from rideschedulepublisher import RideSchedulePublisher
-from classes import Person, Car, Event
+from classes import Person, Car, Event, EventDriver
 
 def configEventDate():
     #Queries.setImplementation(TestQueries())
     return Queries.getCurrentEventDate()
 
+if True:
+    event_date = configEventDate()
+    print(event_date)
+
 def testCompute() -> RideSchedule:
-    rs = RideSchedule(configEventDate())
-    rs.setCars(Queries.getCars())
-    rs.setRiders(Queries.getRiders())
+    rs = RideSchedule(event_date)
+    rs.setCars(Queries.getCars(event_date))
+    rs.setRiders(Queries.getRiders(event_date))
     rs.computeSchedule()
     return rs
 
+s = Storage()
+
+if False:
+    e=Event()
+    print(e.setEventDate("3/6/2022"))
+    e.name='First Sunday in March'
+    print(e)
+    s.upsert(e)
+
+if False:
+    event_date = configEventDate()
+    drivers = Athena.executeQueryToRows("select user_id from person order by random() limit 7")
+    print(event_date)
+    for driver in drivers:
+        user_id = driver['user_id']
+        print (user_id)
+        ed = EventDriver(event_date, user_id)
+        print(ed)
+        s.upsert(ed)
+
 if True:
     rs = testCompute()
-
-s = Storage()
 
 if False:
     # Persist person test data
@@ -47,16 +71,9 @@ if False:
         print(car)
         s.upsert(car)
 
-if False:
-    e=Event()
-    print(e.setEventDate("2/28/2022"))
-    e.name='Tornami a vagheggiar Day'
-    print(e)
-    s.upsert(e)
-
 if True:
     s.upsert(rs)
 
 if True:
-    rsp=RideSchedulePublisher()
-    print(s.putAsHtml("event-date/ride-index/index.html", rsp.asHTML()))
+    rsp=RideSchedulePublisher(event_date)
+    print(s.putAsHtml(event_date + "/ride-index/index.html", rsp.asHTML()))

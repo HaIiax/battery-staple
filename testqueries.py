@@ -101,11 +101,11 @@ class TestQueries(QueryTemplate):
     ]
 
     times = [
-        "08:00",
-        "08:15",
-        "08:30",
-        "08:45",
-        "09:00"
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
     ]
 
     @classmethod
