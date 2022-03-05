@@ -2,18 +2,18 @@
 
 ## Rename security.py
 
-- Seems to have special meaning to github
+- ~Seems to have special meaning to github~
 
 ## Create Helper Class
 
-- Passed as first argument to run() function
+- ~Passed as first argument to run() function~
 - Holds initialized instances of
-    - Storage
-    - Security
+    - ~Storage~
+    - ~Security~
     - LocationNormalizer
     - ... future helpers
-- Create instance in groupme-bot.py, set instances of Storage, Security and LocationNormalizer
-- Avoids having to modify the run() signature and callers each time a new helper is needed
+- ~Create instance in groupme-bot.py, set instances of Storage, Security and LocationNormalizer~
+- ~Avoids having to modify the run() signature and callers each time a new helper is needed~
 
 ## Normalize Location Names
 
