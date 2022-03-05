@@ -66,9 +66,10 @@ for group in BOT_INFO:
         if DEBUG: print(errcol.debug + "Group rules not found for [G:{}]".format(group) + errcol.tail)
 
 from command_security import Security
+from helper import Helper
 security = Security(os.getenv('PERMISSIONS'))
 storer = Storage()
-
+helper = Helper(storer, security)
 
 #######################################################################################################
 ######################## Helper functions #############################################################
@@ -126,7 +127,7 @@ def webhook():
         return "ok", 200
 
     if data['group_id'] in GROUP_RULES:
-        if GROUP_RULES[data['group_id']].run(storer, security, data, BOT_INFO[data['group_id']], send_message):
+        if GROUP_RULES[data['group_id']].run(helper, data, BOT_INFO[data['group_id']], send_message):
             return "ok", 200
 
     # GLOBAL_RULES.run(storer, data, BOT_INFO[data['group_id']], send_message)
