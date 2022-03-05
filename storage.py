@@ -29,7 +29,6 @@ class Storage:
             ExpiresIn=7*24*60*60)
 
     def putAsHtml(self, key, content):
-        key = "html/" + key
         self.client.put_object(
             Bucket='battery-staple-v1', 
             Key=key, 

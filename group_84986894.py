@@ -113,7 +113,7 @@ def run(storer, data, bot_info, send):
         storer.upsert(rs)
         rsp = RideSchedulePublisher(event_date)
         schedule_html = rsp.asHTML()
-        schedule_html_url = storer.putAsHtml(event_date + "/ride-index/index.html", schedule_html)
+        schedule_html_url = storer.putAsHtml("html/" + event_date + "/ride-index/index.html", schedule_html)
 
         send("Generation of rides completed. URL: " + schedule_html_url, bot_info[0])
         return True
@@ -123,7 +123,7 @@ def run(storer, data, bot_info, send):
         if event_date is None:
             send("No current event. Try again later", bot_info[0])
             return True
-        schedule_html_url = storer.presignURL(event_date + "/ride-index/index.html")
+        schedule_html_url = storer.presignURL("html/" + event_date + "/ride-index/index.html")
         send('URL: ' + schedule_html_url, bot_info[0])
         return True
 
