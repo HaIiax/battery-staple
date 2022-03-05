@@ -118,6 +118,15 @@ def run(storer, data, bot_info, send):
         send("Generation of rides completed. URL: " + schedule_html_url, bot_info[0])
         return True
 
+    if message == '.getlink':
+        event_date = Queries.getCurrentEventDate()
+        if event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        schedule_html_url = storer.presignURL(event_date + "/ride-index/index.html")
+        send('URL: ' + schedule_html_url, bot_info[0])
+        return True
+
     if message.startswith('.user '):
         user_parts = message.removeprefix('.user').split(',')
         if len(user_parts) != 2:
