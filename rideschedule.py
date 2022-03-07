@@ -4,8 +4,10 @@ import json
 class RideSchedule:
     def __init__(self, event_date=None, guest_rides=None, guest_time_offset=None):
         self.event_date = event_date
-        self.guest_rides = int(guest_rides)
-        self.guest_time_offset = int(guest_time_offset)
+        if guest_rides is not None:
+            self.guest_rides = int(guest_rides)
+        if guest_time_offset is not None:
+            self.guest_time_offset = int(guest_time_offset)
         self._schedule = None
 
     def toJson(self):
@@ -15,11 +17,53 @@ class RideSchedule:
             stra.append(row_str)
         return '\n'.join(stra)
 
+    @classmethod
+    def asRideSchedule(cls, jsonString: str):
+        obj = cls()
+        obj._schedule = []
+        for row in jsonString.split('\n'):
+            obj._schedule.append(json.loads(row))
+        if len(obj._schedule) > 0:
+            obj.event_date = obj._schedule[0]['event_date']
+        return obj
+
     def __str__(self):
         return self.toJson()
 
     def pk(self):
         return "EventRide/" + self.event_date + '/' + 'RideSchedule.ndjson'
+
+    def addGuest(self, location: str, rider_description: str):
+        for row in self._schedule:
+            if int(row['time']) > 1000:
+                if row['location'] == 'Open':
+                    prefix = row['user_id'].split(' ')[0]
+                    row['location'] = location
+                    row['user_id'] = prefix + ' ' + rider_description
+                    return row
+        return None
+
+    def removeGuest(self, rider_index: str):
+        for row in self._schedule:
+            if int(row['time']) > 1000:
+                if row['location'] != 'Open':
+                    prefix = row['user_id'].split(' ')[0]
+                    if prefix == '[' + rider_index.strip() + ']':
+                        row['location'] = 'Open'
+                        row['user_id'] = prefix
+                        return row
+        return None
+
+    def editGuest(self, rider_index: str, location: str, rider_description: str):
+        for row in self._schedule:
+            if int(row['time']) > 1000:
+                if row['location'] != 'Open':
+                    prefix = row['user_id'].split(' ')[0]
+                    if prefix == '[' + rider_index.strip() + ']':
+                        row['location'] = location
+                        row['user_id'] = prefix + ' ' + rider_description
+                        return row
+        return None
 
     def setRiders(self, riders):
         self.riders = riders
@@ -154,7 +198,6 @@ class CarMaster:
 
     def results(self, event_date):
         result = []
-        last_time = None
         for current_time in self.car_time_struct:
             last_time = current_time
             car_time = self.car_time_struct[current_time]

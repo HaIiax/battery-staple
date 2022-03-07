@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import os, time
 from testqueries import TestQueries
 from athena import Athena
 from storage import Storage
@@ -8,6 +8,20 @@ from queries import Queries
 from rideschedule import RideSchedule
 from rideschedulepublisher import RideSchedulePublisher
 from classes import Person, Car, Event, EventDriver
+
+s = Storage()
+
+if False:
+    e=Event()
+    print(e.setEventDate('3/11/2022'))
+    e.name='A Friday in March'
+    print(e.setPickupTime("8:00"))
+    print(e.setPickupInterval("15"))
+    print(e.setGuestPickupTime("9:30"))
+    print(e.setGuestPickupInterval("20"))
+    print(e.setGuestRides("3"))
+    print(e)
+    s.upsert(e)
 
 def configEventDate():
     #Queries.setImplementation(TestQueries())
@@ -25,23 +39,9 @@ def testCompute() -> RideSchedule:
     rs.computeSchedule()
     return rs
 
-s = Storage()
-
-if False:
-    e=Event()
-    print(e.setEventDate('3/6/2022'))
-    e.name='First Sunday in March'
-    print(e.setPickupTime("8:20"))
-    print(e.setPickupInterval("17"))
-    print(e.setGuestPickupTime("10:24"))
-    print(e.setGuestPickupInterval("23"))
-    print(e.setGuestRides("5"))
-    print(e)
-    s.upsert(e)
-
 if False:
     event_date = configEventDate()
-    drivers = Athena.executeQueryToRows("select user_id from person order by random() limit 7")
+    drivers = Athena.executeQueryToRows("select user_id from person order by random() limit 4")
     print(event_date)
     for driver in drivers:
         user_id = driver['user_id']
@@ -49,9 +49,6 @@ if False:
         ed = EventDriver(event_date, user_id)
         print(ed)
         s.upsert(ed)
-
-if True:
-    rs = testCompute()
 
 if False:
     # Persist person test data
@@ -77,8 +74,53 @@ if False:
         print(car)
         s.upsert(car)
 
-if True:
+if False:
+    rs = testCompute()
+
+if False:
     s.upsert(rs)
+
+if True:
+    lt = time.localtime()
+    rs_json = s.get(RideSchedule(event_date).pk())
+    rs = RideSchedule.asRideSchedule(rs_json)
+    assignment = rs.addGuest('Haverford Villas ' + str(int(time.time() % 30)), 'Sue Jones ' + str(lt.tm_min) + ':' + str(lt.tm_sec) + ' (484-555-1212)')
+    if assignment is not None:
+        rsp=RideSchedulePublisher(
+            event['event_date'], 
+            event['pickup_time'], 
+            event['pickup_interval'],
+            event['guest_pickup_time'], 
+            event['guest_pickup_interval'],
+            1000)
+
+        print (assignment)
+        pickup_hhmm = rsp.toFormattedTime(assignment['time'])
+        print (pickup_hhmm)
+
+        s.upsert(rs)
+    else:
+        print ("No more guest rides available")
+
+if False:
+    rs_json = s.get(RideSchedule(event_date).pk())
+    rs = RideSchedule.asRideSchedule(rs_json)
+    assignment = rs.removeGuest('2:1')
+    print (assignment)
+    if assignment is not None:
+        s.upsert(rs)
+    else:
+        print ("No such guest")
+
+if False:
+    rs_json = s.get(RideSchedule(event_date).pk())
+    rs = RideSchedule.asRideSchedule(rs_json)
+    assignment = rs.editGuest('1:2', 'Randor Hunt', 'Clair Smith (610-555-1212)')
+    print (assignment)
+    if assignment is not None:
+        s.upsert(rs)
+    else:
+        print ("No such guest")
 
 if True:
     rsp=RideSchedulePublisher(
