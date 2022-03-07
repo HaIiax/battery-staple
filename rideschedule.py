@@ -2,8 +2,10 @@ import json
 
 
 class RideSchedule:
-    def __init__(self, event_date=None):
+    def __init__(self, event_date=None, guest_rides=None, guest_time_offset=None):
         self.event_date = event_date
+        self.guest_rides = int(guest_rides)
+        self.guest_time_offset = int(guest_time_offset)
         self._schedule = None
 
     def toJson(self):
@@ -29,7 +31,25 @@ class RideSchedule:
         candidate_rider = CandidateRiders()
         for rider in self.riders:
             candidate_rider.addRider(rider)
-        car_master = CarMaster(candidate_rider.getTimes(), self.cars)
+
+        # Find the minimum and maximum candidate, then range from the min to 1+ the max
+        candidate_times = []
+        for time in candidate_rider.getTimes():
+            candidate_times.append(int(time))
+        candidate_times.sort()
+        all_times = []
+        all_times += range(candidate_times[0], candidate_times[-1] + 1)
+
+        # Add the guest range
+        starting_guest_time = self.guest_time_offset + 1
+        all_times += range(starting_guest_time, starting_guest_time + self.guest_rides)
+        all_times.sort()
+
+        # Convert back to strings
+        string_times = []
+        for time in all_times:
+            string_times.append(str(time))
+        car_master = CarMaster(string_times, self.cars, self.guest_time_offset)
         candidate_rider.scheduleRiders(car_master)
         self._schedule = car_master.results(self.event_date)
 
@@ -103,20 +123,31 @@ class CandidateRiders:
 
 
 class CarMaster:
-    def __init__(self, times, cars):
+    def __init__(self, times, cars, guest_offset):
         self.car_time_struct = {}
         self.driver_ids = {}
         self.user_ids = set()
+        self.guest_offset = int(guest_offset)
         for current_car in cars:
             self.driver_ids[current_car['driver_id']] = {'car_id': current_car['owner'], 'used': False}
         for current_time in times:
             self.car_time_struct[current_time] = {}
         for current_time in times:
             car_struct = self.car_time_struct[current_time]
+            car_index = 0
             for current_car in cars:
+                car_index += 1
                 cabin = {'driver_id': current_car['driver_id'], 'seats': int(current_car['seats']), 'riders': [],
                          'preferred_location': None}
                 car_struct[current_car['owner']] = cabin
+                # Handle Guest Initialization Here; current_time > guest_offset
+                # Change seats to 1, and assign a placeholder rider.
+                guest_index = int(current_time) - self.guest_offset
+                if guest_index > 0 and len(cabin['riders']) == 0:
+                    cabin['seats'] = 1
+                    guest_id = "[" + str(guest_index) + ":" + str(car_index) + "]"
+                    cabin['preferred_location'] = 'Open'
+                    cabin['riders'].append([guest_id, cabin['preferred_location']])
 
     def __str__(self):
         return str(self.car_time_struct)
@@ -141,23 +172,6 @@ class CarMaster:
                     event_rider['user_id'] = rider[0]
                     result.append(event_rider)
 
-        # Give all drivers a Guest time
-        # (Was: If we have excess drivers, create a single event_rider with after time and null rider)
-        # if True implements all drivers get a Guest time
-        if last_time is not None:
-            current_time = "> " + last_time
-            for driver in self.driver_ids:
-                driver_struct = self.driver_ids[driver]
-                if True or not driver_struct['used']:
-                    event_rider = {}
-                    event_rider['event_date'] = event_date
-                    event_rider['time'] = current_time
-                    event_rider['car_id'] = driver_struct['car_id']
-                    event_rider['driver_id'] = driver
-                    event_rider['location'] = 'Guest Locations'
-                    event_rider['user_id'] = None
-                    result.append(event_rider)
-
         return result
 
     def offerRider(self, user_id, location, time, preferred_car_id):
@@ -171,7 +185,18 @@ class CarMaster:
             return True
 
         car_struct = self.car_time_struct[time]
-        # print(car_struct)
+
+        # Handle guest edits
+        if int(time) > self.guest_offset:
+            if preferred_car_id in car_struct:
+                car_id = preferred_car_id
+            else:
+                return False
+            car = car_struct[car_id]
+            car['riders'] = [[user_id, location]]
+            car['preferred_location'] = location
+            self.user_ids.add(user_id)
+            return True
 
         # Fit to specific car_id
         if preferred_car_id in car_struct:

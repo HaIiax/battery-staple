@@ -19,7 +19,10 @@ CREATE EXTERNAL TABLE `event`(
   `event_date` string COMMENT 'from deserializer',
   `name` string COMMENT 'from deserializer',
   `pickup_time` string COMMENT 'from deserializer',
-  `pickup_interval` string COMMENT 'from deserializer')
+  `pickup_interval` string COMMENT 'from deserializer',
+  `guest_pickup_time` string COMMENT 'from deserializer',
+  `guest_pickup_interval` string COMMENT 'from deserializer',
+  `guest_rides` string COMMENT 'from deserializer')
 ROW FORMAT SERDE
   'org.openx.data.jsonserde.JsonSerDe'
 STORED AS INPUTFORMAT
@@ -166,6 +169,9 @@ SELECT
 , name
 , pickup_time
 , pickup_interval
+, guest_pickup_time
+, guest_pickup_interval
+, guest_rides
 FROM
   event
 WHERE (event_date = (SELECT "min"(event_date)
@@ -219,7 +225,7 @@ SELECT
 , pd.name driver_name
 , er.location
 , er.user_id
-, COALESCE(pr.name, 'Guests') rider_name
+, COALESCE(pr.name, er.user_id) rider_name
 FROM
   (((((event_ride er
 INNER JOIN current_event ce ON (er.event_date = ce.event_date))
@@ -258,7 +264,7 @@ FROM WITH driver_index AS (
 		WHERE ed.event_date = ?
 			AND NOT (
 				user_id IN (
-					SELECT DISTINCT user_id
+					SELECT DISTINCT driver_id
 					FROM event_ride_inj
 					WHERE event_date = ?
 				)
@@ -315,7 +321,7 @@ PREPARE current_event_ride_query FROM
 SELECT
   er.event_date
 , ce.name event_name
-, er.time
+, cast(er.time as integer) as time
 , er.car_id
 , po.name car_owner_name
 , c.model
@@ -324,7 +330,7 @@ SELECT
 , pd.name driver_name
 , er.location
 , er.user_id
-, COALESCE(pr.name, 'Guests') rider_name
+, COALESCE(pr.name, er.user_id) rider_name
 FROM
   (((((event_ride_inj er
 INNER JOIN current_event ce ON (er.event_date = ce.event_date))
@@ -339,11 +345,29 @@ ORDER BY time, location, model, rider_name
 
 PREPARE current_riders_query
 FROM
-SELECT '2' as sequence,
+SELECT 3 as sequence,
+    1 as stop_count,
+    er.user_id,
+    er.user_id as name,
+    cast(er.time as integer) as time,
+    er.location,
+    er.car_id,
+    er.driver_id,
+    er.event_date,
+    e.name event_name
+FROM event_ride_inj er INNER JOIN event e on (er.event_date = e.event_date)
+WHERE (
+    er.location != 'Open'
+    AND cast(er.time as integer) > 1000
+    AND er.event_date = ?
+    AND e.event_date = ?
+)
+UNION ALL
+SELECT 2 as sequence,
 	count(*) over (partition by p.time, p.location) as stop_count,
 	p.user_id,
 	p.name,
-	p.time,
+	cast(p.time as integer) as time,
 	p.location,
 	null as car_id,
 	null as driver_id,
@@ -367,11 +391,11 @@ WHERE (
 	)
 	AND e.event_date = ?
 UNION ALL
-SELECT '1' as sequence,
+SELECT 1 as sequence,
 	count(*) over (partition by p.time, p.location) as stop_count,
 	er.user_id,
 	p.name,
-	er.time,
+	cast(er.time as integer) as time,
 	er.location,
 	er.car_id,
 	er.driver_id,

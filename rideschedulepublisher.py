@@ -4,24 +4,30 @@ from queries import Queries
 
 
 class RideSchedulePublisher:
-    def __init__(self, event_date, pickup_time, pickup_interval):
+    def __init__(self, event_date, pickup_time, pickup_interval, guest_pickup_time, guest_pickup_interval, guest_offset):
         self.event_date = event_date
         self.interval = int(pickup_interval)
         tm = time.strptime(pickup_time, "%H:%M") # .tm_hour .tm_min
         self.pickup = tm.tm_hour * 60 + tm.tm_min
+        self.guest_interval = int(guest_pickup_interval)
+        gtm = time.strptime(guest_pickup_time, "%H:%M") # .tm_hour .tm_min
+        self.guest_pickup = gtm.tm_hour * 60 + gtm.tm_min
+        self.guest_offset = int(guest_offset)
         with open(os.path.realpath(__file__).replace('.py', '.js')) as jsstring:
             self.js = jsstring.read()
 
     def toFormattedTime(self, time: str):
-        gt = ""
-        if time.startswith('> '):
-            time = time[2:]
-            gt = "> "
-        offset = self.interval * (int(time) - 1)
-        minutes = self.pickup + offset
+        itime = int(time)
+        if itime > self.guest_offset:
+            offset = self.guest_interval * (itime - 1 - self.guest_offset)
+            minutes = self.guest_pickup + offset
+        else:
+            offset = self.interval * (int(time) - 1)
+            minutes = self.pickup + offset
+
         hour = int(minutes/60)
         minutes_in_hour = minutes % 60
-        return gt + "{:02d}:{:02d}".format(hour, minutes_in_hour)
+        return "{:02d}:{:02d}".format(hour, minutes_in_hour)
 
     def asHTML(self):
         import makeHTML
@@ -119,11 +125,14 @@ class RideSchedulePublisher:
                                                 content=model).addPart('div', style="is-size-7 has-text-centered", content="Driver: " + driver_name).addPart('div',
                                                                                                                                                              style="is-size-7 has-text-centered", content=seats + " seats @" + parking_spot).addPart('div')
 
-            content.addPart('span', style="tag", content=rider_name)
+            rider_style = "tag"
+            if location == "Open":
+                rider_style += " is-hidden"
+            content.addPart('span', style=rider_style, content=rider_name)
 
         # Add to the driver_panel
         riders.sort(key=lambda r: r['driver_name'] + '/' +
-                    r['time'] + '/' + r['location'] + '/' + r['rider_name'])
+                    "{:06d}".format(int(r['time'])) + '/' + r['location'] + '/' + r['rider_name'])
         ptime = None
         pmodel = None
         plocation = None
@@ -169,6 +178,9 @@ class RideSchedulePublisher:
                 location_content = time_content.addPart(
                     'div', style="card-content", content=location)
 
-            location_content.addPart('span', style="tag", content=rider_name)
+            rider_style = "tag"
+            if location == "Open":
+                rider_style += " is-hidden"
+            location_content.addPart('span', style=rider_style, content=rider_name)
 
         return '<!DOCTYPE html>\n' + page.make()

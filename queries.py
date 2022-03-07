@@ -32,7 +32,7 @@ class _AthenaQueries(QueryTemplate):
         return result[0]['event_date']
 
     def getCurrentEvent(self):
-        result = Athena.executeQueryToRows('select event_date, pickup_time, pickup_interval from current_event')
+        result = Athena.executeQueryToRows('select event_date, pickup_time, pickup_interval, guest_pickup_time, guest_pickup_interval, guest_rides from current_event')
         if result is None or len(result) == 0:
             return None
         return result[0]
@@ -43,7 +43,7 @@ class _AthenaQueries(QueryTemplate):
                 "select user_id, time, location, event_date from current_riders order by time, count(*) over (partition by time, location) desc, location, random(), name")
         if event_date is None:
             event_date = self.getCurrentEventDate()
-        return Athena.executeQueryToRows("execute current_riders_query using '" + event_date + "', '"  + event_date + "', '"  + event_date + "', '" + event_date + "', '" + event_date + "'")
+        return Athena.executeQueryToRows("execute current_riders_query using '" + event_date + "', '"  + event_date + "', '"+ event_date + "', '"  + event_date + "', '"  + event_date + "', '" + event_date + "', '" + event_date + "'")
 
     def getCars(self, event_date=None):
         if False:

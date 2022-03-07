@@ -57,10 +57,10 @@ def run(helper: Helper, data, bot_info, send):
 
     if message.startswith('.event '):
         event = Event.newEvent()
-        event_parts = message.removeprefix('.event ').split(',')  # add remove, date, name, pickup time, pickup interval
+        event_parts = message.removeprefix('.event ').split(',')  # add remove, date, name, pickup time, pickup interval, guest_time, guest_interval, guest_rides
         if event_parts[0].strip()[:1].lower() == 'a':
-            if len(event_parts) != 5:
-                send("Not enough data. Check to see that there are 4 commas in your command", bot_info[0])
+            if len(event_parts) != 8:
+                send("Not enough data. Check to see that there are 7 commas in your command", bot_info[0])
                 return True
             result = event.setEventDate(event_parts[1].strip())
             if result is not None:
@@ -74,6 +74,18 @@ def run(helper: Helper, data, bot_info, send):
             result = event.setPickupInterval(event_parts[4].strip())
             if result is not None:
                 send("Error in pickup interval." + str(result), bot_info[0])
+                return True
+            result = event.setGuestPickupTime(event_parts[5].strip())
+            if result is not None:
+                send("Error in guest pickup time." + str(result), bot_info[0])
+                return True
+            result = event.setGuestPickupInterval(event_parts[6].strip())
+            if result is not None:
+                send("Error in guest pickup interval." + str(result), bot_info[0])
+                return True
+            result = event.setGuestRides(event_parts[7].strip())
+            if result is not None:
+                send("Error in guest rides." + str(result), bot_info[0])
                 return True
             storer.upsert(event)
             send("Added event: " + str(event), bot_info[0])

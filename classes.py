@@ -65,11 +65,14 @@ class Car:
 
 
 class Event:
-    def __init__(self, event_date=None, name=None, pickup_time=None, pickup_interval=None):
+    def __init__(self, event_date=None, name=None, pickup_time=None, pickup_interval=None, guest_pickup_time=None, guest_pickup_interval=None, guest_rides=None):
         self.event_date = event_date
         self.name = name
         self.pickup_time = pickup_time
         self.pickup_interval = pickup_interval
+        self.guest_pickup_time = guest_pickup_time
+        self.guest_pickup_interval = guest_pickup_interval
+        self.guest_rides = guest_rides
 
     def pk(self):
         return 'Event/' + self.event_date
@@ -117,6 +120,33 @@ class Event:
         except BaseException as err:
             return str(err)
 
+    def setGuestPickupTime(self, time):
+        try:
+            tmp = datetime.strptime(time, '%H:%M')
+            self.guest_pickup_time = tmp.strftime('%H:%M')
+            return None
+        except BaseException as err:
+            return str(err)
+
+    def setGuestPickupInterval(self, interval):
+        try:
+            tmp = int(interval)
+            if tmp < 1 or tmp > 90:
+                return "Guest pickup interval must be between 1 and 90 minutes"
+            self.guest_pickup_interval = str(tmp)
+            return None
+        except BaseException as err:
+            return str(err)
+
+    def setGuestRides(self, rides):
+        try:
+            tmp = int(rides)
+            if tmp < 1 or tmp > 9:
+                return "Guest rides must be between 1 and 9"
+            self.guest_rides = str(tmp)
+            return None
+        except BaseException as err:
+            return str(err)
 
 class EventOptOut:
     def __init__(self, event_date=None, user_id=None):

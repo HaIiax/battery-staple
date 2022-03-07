@@ -14,11 +14,12 @@ def configEventDate():
     return Queries.getCurrentEventDate()
 
 if True:
-    event_date = configEventDate()
+    event = Queries.getCurrentEvent()
+    event_date = event['event_date']
     print(event_date)
 
 def testCompute() -> RideSchedule:
-    rs = RideSchedule(event_date)
+    rs = RideSchedule(event_date, event['guest_rides'], 1000)
     rs.setCars(Queries.getCars(event_date))
     rs.setRiders(Queries.getRiders(event_date))
     rs.computeSchedule()
@@ -26,12 +27,15 @@ def testCompute() -> RideSchedule:
 
 s = Storage()
 
-if True:
+if False:
     e=Event()
     print(e.setEventDate('3/6/2022'))
     e.name='First Sunday in March'
     print(e.setPickupTime("8:20"))
     print(e.setPickupInterval("17"))
+    print(e.setGuestPickupTime("10:24"))
+    print(e.setGuestPickupInterval("23"))
+    print(e.setGuestRides("5"))
     print(e)
     s.upsert(e)
 
@@ -77,6 +81,11 @@ if True:
     s.upsert(rs)
 
 if True:
-    event = Queries.getCurrentEvent()
-    rsp=RideSchedulePublisher(event['event_date'], event['pickup_time'], event['pickup_interval'])
+    rsp=RideSchedulePublisher(
+        event['event_date'], 
+        event['pickup_time'], 
+        event['pickup_interval'],
+        event['guest_pickup_time'], 
+        event['guest_pickup_interval'],
+        1000)
     print(s.putAsHtml("html/" + event_date + "/ride-index/index.html", rsp.asHTML()))
