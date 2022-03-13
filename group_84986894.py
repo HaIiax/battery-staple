@@ -216,13 +216,13 @@ def run(helper: Helper, data, bot_info, send):
                 return True
 
             storer.upsert(rs)
-            schedule_html_url = publishSchedule(event, storer)
+            schedule_html_url = publishSchedule(current_event, storer)
 
             # assigment dictionary
             # {'event_date': '2022-03-14', 'time': '1001', 'car_id': '10480', 'driver_id': '10240', 'location': 'Haverford Villas 8', 'user_id': '[1:2] Sue Jones 45:8 (484-555-1212)'}
 
             # Use rsp to translate time offset to hh:mm
-            rsp = currentRideSchedulePublisher(event)
+            rsp = currentRideSchedulePublisher(current_event)
             pickup_time = rsp.toFormattedTime(assignment['time'])
 
             # Retrieve driver
@@ -252,7 +252,7 @@ def run(helper: Helper, data, bot_info, send):
                 return True
 
             storer.upsert(rs)
-            schedule_html_url = publishSchedule(event, storer)
+            schedule_html_url = publishSchedule(current_event, storer)
 
             send("Guest edited. URL: " + schedule_html_url, bot_info[0])            
 
@@ -270,7 +270,7 @@ def run(helper: Helper, data, bot_info, send):
                 return True
 
             storer.upsert(rs)
-            schedule_html_url = publishSchedule(event, storer)
+            schedule_html_url = publishSchedule(current_event, storer)
 
             send("Guest removed. URL: " + schedule_html_url, bot_info[0])            
             return True
