@@ -1,5 +1,5 @@
 from storage import Storage
-from classes import Car, Event, EventOptOut, EventDriver
+from classes import Car, Event, EventOptOut, EventDriver, Person
 from queries import Queries
 from rideschedulepublisher import RideSchedulePublisher
 from rideschedule import RideSchedule
@@ -104,7 +104,7 @@ def run(helper: Helper, data, bot_info, send):
             return True
 
         send(
-            "Error in format for .event command. Should be '.event add, event_date, name' OR '.event remove, event_date'",
+            "Error in format for .event command. Should be '.event add, event_date, name, pickup time, pickup interval, guest_time, guest_interval, guest_rides' OR '.event remove, event_date'",
             bot_info[0])
         return True
 
@@ -131,8 +131,8 @@ def run(helper: Helper, data, bot_info, send):
         return True
 
     if message == '.generate':
-        event_date = Queries.getCurrentEventDate()
-        if event_date is None:
+        event = Queries.getCurrentEvent()
+        if event is None:
             send("No current event. Try again later", bot_info[0])
             return True
 
@@ -141,10 +141,7 @@ def run(helper: Helper, data, bot_info, send):
         rs.setRiders(Queries.getRiders(event_date))
         rs.computeSchedule()
         storer.upsert(rs)
-        event = Queries.getCurrentEvent()
-        rsp = RideSchedulePublisher(event['event_date'], event['pickup_time'], event['pickup_interval'])
-        schedule_html = rsp.asHTML()
-        schedule_html_url = storer.putAsHtml("html/" + event_date + "/ride-index/index.html", schedule_html)
+        schedule_html_url = publishSchedule(event, storer)
 
         send("Generation of rides completed. URL: " + schedule_html_url, bot_info[0])
         return True
@@ -194,6 +191,111 @@ def run(helper: Helper, data, bot_info, send):
         send("You have been removed from the list of drivers for the event on " + current_event_date, bot_info[0])
         return True
 
+    if message.startswith('.guest '):
+        current_event = Queries.getCurrentEvent()
+        if current_event is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+
+        rs_json = storer.get(RideSchedule(event_date).pk())
+        if rs_json is None:
+            send("No rides have been schedued yet. Generate a schedule and try again.", bot_info[0])
+            return True
+        rs = RideSchedule.asRideSchedule(rs_json)
+        
+        guest_parts = message.removeprefix('.guest ').split(',')  # add, location, guest information | edit, n:m, location, guest information | remove, n:m
+        if guest_parts[0].strip()[:1].lower() == 'a':
+            if len(guest_parts) != 3:
+                send("Not enough data. Check to see that there are 2 commas in your command", bot_info[0])
+                return True
+            location = guest_parts[1].strip()
+            description = guest_parts[2].strip()
+            assignment = rs.addGuest(location, description)
+            if assignment is None:
+                send("No more guest rides available", bot_info[0])
+                return True
+
+            storer.upsert(rs)
+            schedule_html_url = publishSchedule(event, storer)
+
+            # assigment dictionary
+            # {'event_date': '2022-03-14', 'time': '1001', 'car_id': '10480', 'driver_id': '10240', 'location': 'Haverford Villas 8', 'user_id': '[1:2] Sue Jones 45:8 (484-555-1212)'}
+
+            # Use rsp to translate time offset to hh:mm
+            rsp = currentRideSchedulePublisher(event)
+            pickup_time = rsp.toFormattedTime(assignment['time'])
+
+            # Retrieve driver
+            driver = Person.asPerson(storer.get(Person(assignment['driver_id']).pk()))
+
+            # Retrieve car
+            car = Car.asCar(storer.get(Car(assignment['car_id']).pk()))
+
+            guest_scheduled_message = "Guest " + description + ", from " + location + ", pickup @" + pickup_time + ", by " + car.model + ", driven by " + driver.name
+
+            send(guest_scheduled_message + schedule_html_url, bot_info[0])
+            send("Guest added. URL: " + schedule_html_url, bot_info[0])
+
+            return True
+
+        if guest_parts[0].strip()[:1].lower() == 'e':
+            if len(guest_parts) != 4:
+                send("Not enough data. Check to see that there are 3 commas in your command", bot_info[0])
+                return True
+
+            guest_id = guest_parts[1].strip()
+            location = guest_parts[2].strip()
+            description = guest_parts[3].strip()
+            assignment = rs.editGuest(guest_id, location, description)
+            if assignment is None:
+                send("No such guest " + guest_id, bot_info[0])
+                return True
+
+            storer.upsert(rs)
+            schedule_html_url = publishSchedule(event, storer)
+
+            send("Guest edited. URL: " + schedule_html_url, bot_info[0])            
+
+            return True
+
+        if guest_parts[0].strip()[:1].lower() == 'r':
+            if len(guest_parts) != 2:
+                send("Not enough data. Check to see that there is 1 comma in your command", bot_info[0])
+                return True
+
+            guest_id = guest_parts[1].strip()
+            assignment = rs.removeGuest(guest_id)
+            if assignment is None:
+                send("No such guest " + guest_id, bot_info[0])
+                return True
+
+            storer.upsert(rs)
+            schedule_html_url = publishSchedule(event, storer)
+
+            send("Guest removed. URL: " + schedule_html_url, bot_info[0])            
+            return True
+
+        send(
+            "Error in format for .guest command. Should be '.guest add, location, information' OR '.guest edit, n:m, location, information' OR '.guest remove, n:m'",
+            bot_info[0])
+
+
     # repeats any other message sent
     # send("Hi {}! You said: {}".format(data['name'], data['text']), bot_info[0])
     return True
+
+def publishSchedule(event, storer):
+    rsp = currentRideSchedulePublisher(event)
+    schedule_html = rsp.asHTML()
+    schedule_html_url = storer.putAsHtml("html/" + event['event_date'] + "/ride-index/index.html", schedule_html)
+    return schedule_html_url
+
+def currentRideSchedulePublisher(event):
+    rsp=RideSchedulePublisher(
+        event['event_date'], 
+        event['pickup_time'], 
+        event['pickup_interval'],
+        event['guest_pickup_time'], 
+        event['guest_pickup_interval'],
+        1000)
+    return rsp

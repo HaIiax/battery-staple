@@ -13,8 +13,8 @@ s = Storage()
 
 if False:
     e=Event()
-    print(e.setEventDate('3/11/2022'))
-    e.name='A Friday in March'
+    print(e.setEventDate('3/14/2022'))
+    e.name='A Monday in March'
     print(e.setPickupTime("8:00"))
     print(e.setPickupInterval("15"))
     print(e.setGuestPickupTime("9:30"))
