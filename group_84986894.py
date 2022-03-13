@@ -197,7 +197,7 @@ def run(helper: Helper, data, bot_info, send):
             send("No current event. Try again later", bot_info[0])
             return True
 
-        rs_json = storer.get(RideSchedule(event_date).pk())
+        rs_json = storer.get(RideSchedule(current_event['event_date']).pk())
         if rs_json is None:
             send("No rides have been schedued yet. Generate a schedule and try again.", bot_info[0])
             return True
