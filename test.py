@@ -7,9 +7,11 @@ from storage import Storage
 from queries import Queries
 from rideschedule import RideSchedule
 from rideschedulepublisher import RideSchedulePublisher
-from classes import Person, Car, Event, EventDriver
+from classes import Person, Car, Event, EventDriver, EventCar
 
 s = Storage()
+
+generate=True
 
 if False:
     e=Event()
@@ -51,6 +53,24 @@ if False:
         s.upsert(ed)
 
 if False:
+    event_date = configEventDate()
+    cars = Athena.executeQueryToRows("select owner from car order by seats desc, random() limit 3")
+    print(event_date)
+    for car in cars:
+        owner = car['owner']
+        print (owner)
+        ec = EventCar(event_date, owner)
+        print(ec)
+        s.upsert(ec)
+
+
+if False:
+    event_date = configEventDate()
+    print(event_date)
+    s.remove(EventDriver(event_date, '16960'))
+    s.upsert(EventDriver(event_date, '14320'))
+
+if False:
     # Persist person test data
     tq=TestQueries()
     for rider in tq.getRiders():
@@ -74,13 +94,13 @@ if False:
         print(car)
         s.upsert(car)
 
-if False:
+if generate:
     rs = testCompute()
 
-if False:
+if generate:
     s.upsert(rs)
 
-if True:
+if False:
     lt = time.localtime()
     rs_json = s.get(RideSchedule(event_date).pk())
     rs = RideSchedule.asRideSchedule(rs_json)
@@ -122,7 +142,7 @@ if False:
     else:
         print ("No such guest")
 
-if True:
+if generate:
     rsp=RideSchedulePublisher(
         event['event_date'], 
         event['pickup_time'], 

@@ -1,5 +1,5 @@
 from storage import Storage
-from classes import Car, Event, EventOptOut, EventDriver, Person
+from classes import Car, Event, EventOptOut, EventDriver, EventCar, Person
 from queries import Queries
 from rideschedulepublisher import RideSchedulePublisher
 from rideschedule import RideSchedule
@@ -189,6 +189,29 @@ def run(helper: Helper, data, bot_info, send):
         event_driver = EventDriver.newEventDriver(data, current_event_date)
         storer.remove(event_driver)
         send("You have been removed from the list of drivers for the event on " + current_event_date, bot_info[0])
+        return True
+
+    if message == '.usecar':
+        current_event_date = Queries.getCurrentEventDate()
+        if current_event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        if storer.get(Car.newCar(data)) is None:
+            send("Your car needs to be registered first with the .car command", bot_info[0])
+            return True
+        event_car = EventCar.newEventCar(data, current_event_date)
+        storer.upsert(event_car)
+        send("Your car has been added to the list of cars for the event on " + current_event_date, bot_info[0])
+        return True
+
+    if message == '.notusecar':
+        current_event_date = Queries.getCurrentEventDate()
+        if current_event_date is None:
+            send("No current event. Try again later", bot_info[0])
+            return True
+        event_car = EventCar.newEventCar(data, current_event_date)
+        storer.remove(event_car)
+        send("Your car has been removed from the list of cars for the event on " + current_event_date, bot_info[0])
         return True
 
     if message.startswith('.guest '):

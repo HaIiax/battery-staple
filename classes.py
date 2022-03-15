@@ -231,3 +231,29 @@ class EventDriver:
         obj.event_date = event_date
         return obj
 
+class EventCar:
+    def __init__(self, event_date=None, owner=None):
+        self.event_date = event_date
+        self.owner = owner
+
+    def pk(self):
+        return 'EventCar/' + self.event_date + '/' + self.owner
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+    def __str__(self):
+        return self.toJson()
+
+    @classmethod
+    def asEventDriver(cls, jsonString):
+        obj = cls()
+        obj.__dict__ = json.loads(jsonString)
+        return obj
+
+    @classmethod
+    def newEventCar(cls, data, event_date):
+        obj = cls()
+        obj.owner = data['user_id']
+        obj.event_date = event_date
+        return obj

@@ -39,13 +39,30 @@
     - Compute offset from pickup_time as (person.time - 1) * pickup_interval
     - Compute display time as pickup_time_minutes + pickup_offset converted back to hh:mm
 
-## Editable Guests
+## ~~Editable Guests~~
 
 - Extend generation of 'Guest' rides from the single placeholder to times computed from event guest_pickup_time, guest_pickup_interval and guest_rides
 - Create a regenerated unique prefix for the guests G offset : index, where offset is the 1 based guest time offset, and index is the 1 based ordinal of the cars initial sort order
 - Location set to the string 'Open'
 - The guest prefix and information is stored in the event_ride user_id column. The join from er.user_id to person is already a left join. Change COALESCE(pr.name, 'Guests') to COALESCE(pr.name, er.user_id)
-- The .guest command has 2 parameters - location, guest details. It will find the first Open location, store the new location and details, write the changes back to the event ride table, then republish.
-- The .guestedit command
-    - modify [n:o], location, details
+- The .guest add command has 2 parameters - location, guest details. It will find the first Open location, store the new location and details, write the changes back to the event ride table, then republish.
+- The .guest command also has
+    - edit [n:o], location, details
     - remove [n:o]
+
+## Disallow driver opt-out (.notdriving)
+
+- Don't allow opt-out if a regeneration would remove guests
+- Allow opt-out if no guests are scheduled for the driver
+    - Same as allow opt-out if no schedule was generated
+- Allow opt-out if at least unassigned driver is present in event_driver
+    - Count of projected count of event_drivers >= count of unique scheduled drivers
+
+
+## Add .usecar and .unusecar
+
+- Populate new event_car table
+    - event_date
+    - owner
+- Where car is currently joined, join event_car
+- Consider .unusecar and guest schedule invalidation

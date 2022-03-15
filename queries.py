@@ -22,6 +22,9 @@ class QueryTemplate:
     def getCurrentEventRide(self):
         self.fail()
 
+    def getGuestCount(self):
+        self.fail()
+
 
 class _AthenaQueries(QueryTemplate):
 
@@ -43,21 +46,24 @@ class _AthenaQueries(QueryTemplate):
                 "select user_id, time, location, event_date from current_riders order by time, count(*) over (partition by time, location) desc, location, random(), name")
         if event_date is None:
             event_date = self.getCurrentEventDate()
-        return Athena.executeQueryToRows("execute current_riders_query using '" + event_date + "', '"  + event_date + "', '"+ event_date + "', '"  + event_date + "', '"  + event_date + "', '" + event_date + "', '" + event_date + "'")
+        return Athena.executeQueryToRows("execute current_riders_query using '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}'".format(dt=event_date))
 
     def getCars(self, event_date=None):
         if False:
             return Athena.executeQueryToRows("select owner, driver_id, seats, model, parking_spot FROM current_event_drivers order by seats desc, random(), model")
         if event_date is None:
             event_date = self.getCurrentEventDate()
-        return Athena.executeQueryToRows("execute current_event_drivers_query using '" + event_date + "', '" + event_date + "', '" + event_date + "', '" + event_date + "', '"  + event_date + "', '" + event_date + "'")
+        return Athena.executeQueryToRows("execute current_event_drivers_query using '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}'".format(dt=event_date))
 
     def getCurrentEventRide(self, event_date=None):
         if False:
             return Athena.executeQueryToRows("select event_date, event_name, time, location, driver_name, car_id, model, seats, parking_spot, rider_name, user_id from current_event_ride order by time, location, model, rider_name")
         if event_date is None:
             event_date = self.getCurrentEventDate()
-        return Athena.executeQueryToRows("execute current_event_ride_query using '" + event_date + "'")
+        return Athena.executeQueryToRows("execute current_event_ride_query using '{dt}'".format(dt=event_date))
+
+    def getGuestCount(self, event_date):
+        return int(Athena.executeQueryToRows("select count(*) as guests from event_ride_inj where event_date = '{}' and cast(time as integer) > 1000 and location != 'Open'".format(event_date))[0]['guests'])
 
 
 class Queries:
@@ -86,4 +92,8 @@ class Queries:
 
     @classmethod
     def getCurrentEventRide(cls, event_date=None) -> Any:
+        return cls._impl.getCurrentEventRide(event_date)
+
+    @classmethod
+    def C(cls, event_date=None) -> Any:
         return cls._impl.getCurrentEventRide(event_date)

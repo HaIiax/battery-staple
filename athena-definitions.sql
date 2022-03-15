@@ -69,6 +69,41 @@ TBLPROPERTIES (
   'storage.location.template'='s3://battery-staple-v1/EventDriver/${event_date}',
   'transient_lastDdlTime'='1646161237')
 
+CREATE EXTERNAL TABLE `event_car`(
+  `event_date` string COMMENT 'from deserializer',
+  `owner` string COMMENT 'from deserializer')
+ROW FORMAT SERDE
+  'org.openx.data.jsonserde.JsonSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+LOCATION
+  's3://battery-staple-v1/EventCar'
+TBLPROPERTIES (
+  'has_encrypted_data'='false',
+  'transient_lastDdlTime'='1646102589')
+
+CREATE EXTERNAL TABLE `event_car_inj`(
+  `owner` string COMMENT 'from deserializer')
+PARTITIONED BY (
+  `event_date` string)
+ROW FORMAT SERDE
+  'org.openx.data.jsonserde.JsonSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+LOCATION
+  's3://battery-staple-v1/EventCar'
+TBLPROPERTIES (
+  'has_encrypted_data'='false',
+  'projection.enabled'='true',
+  'projection.event_date.type'='injected',
+  'storage.location.template'='s3://battery-staple-v1/EventCar/${event_date}',
+  'transient_lastDdlTime'='1646161237')
+
+
 CREATE EXTERNAL TABLE `event_opt_out`(
   `event_date` string COMMENT 'from deserializer',
   `user_id` string COMMENT 'from deserializer')
@@ -271,7 +306,7 @@ FROM WITH driver_index AS (
 			)
 	),
 	car_index AS (
-		SELECT owner,
+		SELECT 1, owner,
 			seats,
 			model,
 			parking_spot,
@@ -289,9 +324,15 @@ FROM WITH driver_index AS (
 					WHERE er.event_date = ?
 						AND ed.event_date = ?
 				)
-			)
+			) AND (
+        owner IN (
+          SELECT owner
+          FROM event_car_inj ec
+          WHERE ec.event_date = ?
+        )
+      )
 	)
-SELECT ci.owner,
+SELECT 1 as src, ci.owner,
 	di.user_id driver_id,
 	CAST(ci.seats AS bigint) seats,
 	ci.model,
@@ -301,7 +342,7 @@ FROM (
 		INNER JOIN car_index ci ON (di.index = ci.index)
 	)
 UNION ALL
-SELECT DISTINCT er.car_id AS owner,
+SELECT DISTINCT 2 as src, er.car_id AS owner,
 	er.driver_id,
 	CAST(c.seats AS bigint) seats,
 	c.model,
@@ -310,7 +351,14 @@ FROM event_ride_inj er
 	INNER JOIN car c ON (er.car_id = c.owner)
 	INNER JOIN event_driver_inj ed ON (er.driver_id = ed.user_id)
 WHERE er.event_date = ?
-	and ed.event_date = ?
+	AND ed.event_date = ?
+  AND (
+    c.owner IN (
+      SELECT owner
+      FROM event_car_inj ec
+      WHERE ec.event_date = ?
+    )
+  )
 ORDER BY seats desc,
 	random(),
 	model

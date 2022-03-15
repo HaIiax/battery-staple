@@ -17,6 +17,14 @@ Offer your car to be used for driving using the add command, or remove the car. 
 - .car add, seats , model , parking_location
 - .car remove
 
+## .usecar
+
+Offers your car for use in the current event. A .car command needs to be invoked first before the .usecar command is issued.
+
+## .notusecar
+
+Removes your car for use in the current event. Removing a car after rides have been scheduled for the current event requires generating the schedule again.
+
 ## .notgoing
 
 Opt out of the current event. Opting out of the current event after the rides have been scheduled requires generating the schedule again.
