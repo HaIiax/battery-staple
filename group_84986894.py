@@ -232,6 +232,9 @@ def run(helper: Helper, data, bot_info, send):
                 send("Not enough data. Check to see that there are 2 commas in your command", bot_info[0])
                 return True
             location = guest_parts[1].strip()
+            if location.lower() == 'open':
+                send("Location Open is reserved, please specify another", bot_info[0])
+                return True                
             description = guest_parts[2].strip()
             assignment = rs.addGuest(location, description)
             if assignment is None:
@@ -268,6 +271,9 @@ def run(helper: Helper, data, bot_info, send):
 
             guest_id = guest_parts[1].strip()
             location = guest_parts[2].strip()
+            if location.lower() == 'open':
+                send("Location Open is reserved, please specify another", bot_info[0])
+                return True     
             description = guest_parts[3].strip()
             assignment = rs.editGuest(guest_id, location, description)
             if assignment is None:
