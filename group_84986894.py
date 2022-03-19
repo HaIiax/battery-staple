@@ -217,7 +217,7 @@ def run(helper: Helper, data, bot_info, send):
         if current_event_date is None:
             send("No current event. Try again later", bot_info[0])
             return True
-        if storer.get(Car.newCar(data)) is None:
+        if storer.get(Car.newCar(data).pk()) is None:
             send("Your car needs to be registered first with the .car command", bot_info[0])
             return True
         event_car = EventCar.newEventCar(data, current_event_date)
