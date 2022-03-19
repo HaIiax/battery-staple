@@ -13,7 +13,7 @@ class Person:
 
     def toJson(self):
         self.last_updated = date.today().strftime("%Y-%m-%d")
-        if 'opt_in' not in __dict__ or self.opt_in is None:
+        if 'opt_in' not in self.__dict__ or self.opt_in is None:
             self.opt_in = False
         return json.dumps(self, default=lambda o: o.__dict__)
 
