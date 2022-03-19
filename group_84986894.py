@@ -204,7 +204,7 @@ def run(helper: Helper, data, bot_info, send):
         if current_event_date is None:
             send("No current event. Try again later", bot_info[0])
             return True
-        if Queries.getExcessDriverCount(event_date) < 1:
+        if Queries.getExcessDriverCount(current_event_date) < 1:
             send("No excess drivers for current event. Find someone to do .driving first", bot_info[0])
             return True            
         event_driver = EventDriver.newEventDriver(data, current_event_date)
