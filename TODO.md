@@ -50,19 +50,30 @@
     - edit [n:o], location, details
     - remove [n:o]
 
+## ~~Fiscal Year~~
+
+- Runs from August to May
+- Current start year expressed as Jan 1 of the year
+    - date_trunc('year', current_date - interval '7' month) as fy
+    - date_trunc('year', current_date - interval '7' month) + interval '7' month as fysm
+    - date_trunc('year', current_date - interval '7' month) + interval '7' month + interval '10' month - interval '1' day as fyem
+
+
+## ~~Add .usecar and .notusecar~~
+
+- Populate new event_car table
+    - event_date
+    - owner
+- Where car is currently joined, check event_car too
+
+## .notusecar
+
+- Consider .unusecar and guest schedule invalidation
+
 ## Disallow driver opt-out (.notdriving)
 
 - Don't allow opt-out if a regeneration would remove guests
 - Allow opt-out if no guests are scheduled for the driver
     - Same as allow opt-out if no schedule was generated
-- Allow opt-out if at least unassigned driver is present in event_driver
+- Allow opt-out if at least an unassigned driver is present in event_driver
     - Count of projected count of event_drivers >= count of unique scheduled drivers
-
-
-## Add .usecar and .unusecar
-
-- Populate new event_car table
-    - event_date
-    - owner
-- Where car is currently joined, join event_car
-- Consider .unusecar and guest schedule invalidation

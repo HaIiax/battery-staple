@@ -138,6 +138,40 @@ TBLPROPERTIES (
   'storage.location.template'='s3://battery-staple-v1/EventOptOut/${event_date}',
   'transient_lastDdlTime'='1644698468')
 
+CREATE EXTERNAL TABLE `event_opt_in`(
+  `event_date` string COMMENT 'from deserializer',
+  `user_id` string COMMENT 'from deserializer')
+ROW FORMAT SERDE
+  'org.openx.data.jsonserde.JsonSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+LOCATION
+  's3://battery-staple-v1/EventOptIn'
+TBLPROPERTIES (
+  'has_encrypted_data'='false',
+  'transient_lastDdlTime'='1644698468')
+
+CREATE EXTERNAL TABLE `event_opt_in_inj`(
+  `user_id` string COMMENT 'from deserializer')
+PARTITIONED BY (
+  `event_date` string)
+ROW FORMAT SERDE
+  'org.openx.data.jsonserde.JsonSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+LOCATION
+  's3://battery-staple-v1/EventOptIn'
+TBLPROPERTIES (
+  'has_encrypted_data'='false',
+  'projection.enabled'='true',
+  'projection.event_date.type'='injected',
+  'storage.location.template'='s3://battery-staple-v1/EventOptIn/${event_date}',
+  'transient_lastDdlTime'='1644698468')
+
 CREATE EXTERNAL TABLE `event_ride`(
   `event_date` string COMMENT 'from deserializer',
   `time` string COMMENT 'from deserializer',
@@ -184,7 +218,9 @@ CREATE EXTERNAL TABLE `person`(
   `user_id` string COMMENT 'from deserializer',
   `name` string COMMENT 'from deserializer',
   `time` string COMMENT 'from deserializer',
-  `location` string COMMENT 'from deserializer')
+  `location` string COMMENT 'from deserializer',
+  `opt_in` boolean COMMENT 'from deserializer',
+  `last_updated` string COMMENT 'from deserializer')
 ROW FORMAT SERDE
   'org.openx.data.jsonserde.JsonSerDe'
 STORED AS INPUTFORMAT
@@ -196,6 +232,13 @@ LOCATION
 TBLPROPERTIES (
   'has_encrypted_data'='false',
   'transient_lastDdlTime'='1644258294')
+
+
+CREATE OR REPLACE VIEW "current_fiscal_year" AS
+select current_date as today,
+	date_trunc('year', current_date - interval '7' month) as starting_year,
+	date_trunc('year', current_date - interval '7' month) + interval '7' month as starting_day,
+	date_trunc('year', current_date - interval '7' month) + interval '7' month + interval '10' month - interval '1' day as ending_day
 
 
 CREATE OR REPLACE VIEW "current_event" AS
@@ -285,6 +328,14 @@ FROM
   (event_opt_out eo
 INNER JOIN current_event ce ON (eo.event_date = ce.event_date))
 )))
+
+PREPARE excess_driver_query
+FROM
+SELECT count(distinct d.user_id) - count(distinct r.driver_id) as excess_driver_count
+FROM event_ride_inj r,
+	event_driver_inj d
+WHERE r.event_date = ?
+	AND d.event_date = ?
 
 
 PREPARE current_event_drivers_query
@@ -422,7 +473,8 @@ SELECT 2 as sequence,
 	e.event_date,
 	e.name event_name
 FROM person p,
-	event e
+	event e,
+  current_fiscal_year f
 WHERE (
 		NOT (
 			user_id IN (
@@ -437,6 +489,9 @@ WHERE (
 			)
 		)
 	)
+  AND p.location IS NOT null
+  AND p.time IS NOT null
+  AND CAST(COALESCE(p.last_updated, '1971-01-01') AS date) between f.starting_day and f.ending_day
 	AND e.event_date = ?
 UNION ALL
 SELECT 1 as sequence,

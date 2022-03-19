@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 
-import os, time
+import os, time, random
 from testqueries import TestQueries
 from athena import Athena
 from storage import Storage
 from queries import Queries
 from rideschedule import RideSchedule
 from rideschedulepublisher import RideSchedulePublisher
-from classes import Person, Car, Event, EventDriver, EventCar
+from classes import Person, Car, Event, EventDriver, EventCar, EventOptOut
 
 s = Storage()
 
-generate=True
+generate=False
 
 if False:
     e=Event()
-    print(e.setEventDate('3/14/2022'))
-    e.name='A Monday in March'
+    print(e.setEventDate('3/19/2022'))
+    e.name='A Sunday in March Madness'
     print(e.setPickupTime("8:00"))
     print(e.setPickupInterval("15"))
     print(e.setGuestPickupTime("9:30"))
@@ -63,6 +63,17 @@ if False:
         print(ec)
         s.upsert(ec)
 
+if False:
+    event_date = configEventDate()
+    opt_outs = Athena.executeQueryToRows("select user_id from person order by random() limit 4")
+    print(event_date)
+    for opt_out in opt_outs:
+        user_id = opt_out['user_id']
+        print (user_id)
+        eoo = EventOptOut(event_date, user_id)
+        print(eoo)
+        s.upsert(eoo)
+
 
 if False:
     event_date = configEventDate()
@@ -77,8 +88,9 @@ if False:
         p=Person()
         p.user_id=rider['user_id']
         p.name=rider['name']
-        p.location=rider['location']
-        p.time=rider['time']
+        if random.randint(1, 10) % 3:
+            p.location=rider['location']
+            p.time=rider['time']
         print(p)
         s.upsert(p)
 
@@ -141,6 +153,9 @@ if False:
         s.upsert(rs)
     else:
         print ("No such guest")
+
+if True:
+    print(Queries.getExcessDriverCount(event_date))
 
 if generate:
     rsp=RideSchedulePublisher(

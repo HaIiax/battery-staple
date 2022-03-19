@@ -25,6 +25,14 @@ Offers your car for use in the current event. A .car command needs to be invoked
 
 Removes your car for use in the current event. Removing a car after rides have been scheduled for the current event requires generating the schedule again.
 
+## .sometimesgoing
+
+Once set (and it's saved in your user profile), you need to send a .going to be scheduled for a ride.
+
+## .sometimesnotgoing
+
+Once set (and it's the default), you need to send .notgoing to be not scheduled for a ride.
+
 ## .notgoing
 
 Opt out of the current event. Opting out of the current event after the rides have been scheduled requires generating the schedule again.

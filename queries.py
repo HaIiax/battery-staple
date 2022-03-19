@@ -22,7 +22,7 @@ class QueryTemplate:
     def getCurrentEventRide(self):
         self.fail()
 
-    def getGuestCount(self):
+    def getExcessDriverCount(self):
         self.fail()
 
 
@@ -62,8 +62,8 @@ class _AthenaQueries(QueryTemplate):
             event_date = self.getCurrentEventDate()
         return Athena.executeQueryToRows("execute current_event_ride_query using '{dt}'".format(dt=event_date))
 
-    def getGuestCount(self, event_date):
-        return int(Athena.executeQueryToRows("select count(*) as guests from event_ride_inj where event_date = '{}' and cast(time as integer) > 1000 and location != 'Open'".format(event_date))[0]['guests'])
+    def getExcessDriverCount(self, event_date):
+        return int(Athena.executeQueryToRows("execute excess_driver_query using '{dt}', '{dt}'".format(dt=event_date))[0]['excess_driver_count'])
 
 
 class Queries:
@@ -95,5 +95,5 @@ class Queries:
         return cls._impl.getCurrentEventRide(event_date)
 
     @classmethod
-    def C(cls, event_date=None) -> Any:
-        return cls._impl.getCurrentEventRide(event_date)
+    def getExcessDriverCount(cls, event_date=None) -> Any:
+        return cls._impl.getExcessDriverCount(event_date)

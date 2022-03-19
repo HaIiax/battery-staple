@@ -1,5 +1,5 @@
 from storage import Storage
-from classes import Car, Event, EventOptOut, EventDriver, EventCar, Person
+from classes import Car, Event, EventOptOut, EventOptIn, EventDriver, EventCar, Person
 from queries import Queries
 from rideschedulepublisher import RideSchedulePublisher
 from rideschedule import RideSchedule
@@ -116,6 +116,9 @@ def run(helper: Helper, data, bot_info, send):
         event_opt_out = EventOptOut.newEventOptOut(data)
         event_opt_out.event_date = current_event_date
         storer.upsert(event_opt_out)
+        event_opt_in = EventOptIn.newEventOptIn(data)
+        event_opt_in.event_date = current_event_date
+        storer.remove(event_opt_in)
         send("You have been opted out of the event on " + current_event_date, bot_info[0])
         return True
 
@@ -127,6 +130,9 @@ def run(helper: Helper, data, bot_info, send):
         event_opt_out = EventOptOut.newEventOptOut(data)
         event_opt_out.event_date = current_event_date
         storer.remove(event_opt_out)
+        event_opt_in = EventOptIn.newEventOptIn(data)
+        event_opt_in.event_date = current_event_date
+        storer.upsert(event_opt_in)
         send("You have been opted into the event on " + current_event_date, bot_info[0])
         return True
 
@@ -171,6 +177,18 @@ def run(helper: Helper, data, bot_info, send):
         send("Updated Person: " + str(person), bot_info[0])
         return True
 
+    if message == '.sometimesgoing':
+        person.opt_in = True
+        storer.upsert(person)
+        send("Updated Person: " + str(person), bot_info[0])
+        return True
+
+    if message == '.sometimesnotgoing':
+        person.opt_in = False
+        storer.upsert(person)
+        send("Updated Person: " + str(person), bot_info[0])
+        return True
+
     if message == '.driving':
         current_event_date = Queries.getCurrentEventDate()
         if current_event_date is None:
@@ -186,6 +204,9 @@ def run(helper: Helper, data, bot_info, send):
         if current_event_date is None:
             send("No current event. Try again later", bot_info[0])
             return True
+        if Queries.getExcessDriverCount(event_date) < 1:
+            send("No excess drivers for current event. Find someone to do .driving first", bot_info[0])
+            return True            
         event_driver = EventDriver.newEventDriver(data, current_event_date)
         storer.remove(event_driver)
         send("You have been removed from the list of drivers for the event on " + current_event_date, bot_info[0])

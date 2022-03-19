@@ -1,15 +1,20 @@
 import json
-from datetime import datetime
+from datetime import date, datetime
 
 
 class Person:
-    def __init__(self, user_id=None, name=None, time=None, location=None):
+    def __init__(self, user_id=None, name=None, time=None, location=None, opt_in=None, last_updated=None):
         self.user_id = user_id
         self.name = name
         self.time = time
         self.location = location
+        self.opt_in = opt_in
+        self.last_updated = last_updated
 
     def toJson(self):
+        self.last_updated = date.today().strftime("%Y-%m-%d")
+        if self.opt_in is None:
+            self.opt_in = False
         return json.dumps(self, default=lambda o: o.__dict__)
 
     def __str__(self):
@@ -170,6 +175,33 @@ class EventOptOut:
 
     @classmethod
     def newEventOptOut(cls, data):
+        obj = cls()
+        obj.user_id = data['user_id']
+        return obj
+
+
+class EventOptIn:
+    def __init__(self, event_date=None, user_id=None):
+        self.event_date = event_date
+        self.user_id = user_id
+
+    def pk(self):
+        return 'EventOptIn/' + self.event_date + '/' + self.user_id
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+    def __str__(self):
+        return self.toJson()
+
+    @classmethod
+    def asEventOptIn(cls, jsonString):
+        obj = cls()
+        obj.__dict__ = json.loads(jsonString)
+        return obj
+
+    @classmethod
+    def newEventOptIn(cls, data):
         obj = cls()
         obj.user_id = data['user_id']
         return obj
