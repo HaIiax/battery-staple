@@ -11,7 +11,7 @@ from classes import Person, Car, Event, EventDriver, EventCar, EventOptOut
 
 s = Storage()
 
-generate=False
+generate=True
 
 if False:
     e=Event()
@@ -54,7 +54,7 @@ if False:
 
 if False:
     event_date = configEventDate()
-    cars = Athena.executeQueryToRows("select owner from car order by seats desc, random() limit 3")
+    cars = Athena.executeQueryToRows("select owner from car order by seats desc, random() limit 5")
     print(event_date)
     for car in cars:
         owner = car['owner']
