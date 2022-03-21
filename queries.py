@@ -46,7 +46,7 @@ class _AthenaQueries(QueryTemplate):
                 "select user_id, time, location, event_date from current_riders order by time, count(*) over (partition by time, location) desc, location, random(), name")
         if event_date is None:
             event_date = self.getCurrentEventDate()
-        return Athena.executeQueryToRows("execute current_riders_query using '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}'".format(dt=event_date))
+        return Athena.executeQueryToRows("execute current_riders_query using '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}', '{dt}'".format(dt=event_date))
 
     def getCars(self, event_date=None):
         if False:

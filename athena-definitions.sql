@@ -441,9 +441,52 @@ WHERE er.event_date = ?
 ORDER BY time, location, model, rider_name
 
 
-
 PREPARE current_riders_query
 FROM
+-- CTE computes set of user_id's that are eligible for rides 
+with valid_person as (
+	select user_id,
+		opt_in
+	from person p,
+		current_fiscal_year f
+	where CAST(COALESCE(p.last_updated, '1971-01-01') AS date) between f.starting_day and f.ending_day
+		AND p.location IS NOT null
+		AND p.time IS NOT null
+),
+opt_out_person as (
+	select 1,
+		user_id
+	from valid_person
+	where not opt_in
+		and user_id not in (
+			select user_id
+			from event_opt_out_inj
+			where event_date = ?
+		)
+),
+opt_in_person as (
+	select 2,
+		user_id
+	from valid_person
+	where opt_in
+		and user_id in (
+			select user_id
+			from event_opt_in_inj
+			where event_date = ?
+		)
+),
+opt_all_person as (
+	select *
+	from opt_out_person
+	union all
+	select *
+	from opt_in_person
+),
+valid_event_person as (
+	select distinct user_id
+	from opt_all_person
+)
+-- All guest rides are current riders
 SELECT 3 as sequence,
     1 as stop_count,
     er.user_id,
@@ -462,6 +505,7 @@ WHERE (
     AND e.event_date = ?
 )
 UNION ALL
+-- Valid persons, but not already scheduled for a ride
 SELECT 2 as sequence,
 	count(*) over (partition by p.time, p.location) as stop_count,
 	p.user_id,
@@ -476,12 +520,10 @@ FROM person p,
 	event e,
   current_fiscal_year f
 WHERE (
+    user_id in (SELECT user_id FROM valid_event_person)
+    AND
 		NOT (
 			user_id IN (
-				SELECT user_id
-				FROM event_opt_out_inj
-				where event_date = ?
-				UNION ALL
 				SELECT user_id
 				FROM event_ride
 				where event_date = ?
@@ -489,11 +531,9 @@ WHERE (
 			)
 		)
 	)
-  AND p.location IS NOT null
-  AND p.time IS NOT null
-  AND CAST(COALESCE(p.last_updated, '1971-01-01') AS date) between f.starting_day and f.ending_day
 	AND e.event_date = ?
 UNION ALL
+-- Current riders (not guests, inner join with persons) having not opted-out
 SELECT 1 as sequence,
 	count(*) over (partition by p.time, p.location) as stop_count,
 	er.user_id,
@@ -523,4 +563,3 @@ ORDER BY sequence,
 	location,
 	random(),
 	name
-
