@@ -141,7 +141,7 @@ def run(helper: Helper, data, bot_info, send):
         if event is None:
             send("No current event. Try again later", bot_info[0])
             return True
-
+        event_date = event['event_date']
         rs = RideSchedule(event_date)
         rs.setCars(Queries.getCars(event_date))
         rs.setRiders(Queries.getRiders(event_date))
