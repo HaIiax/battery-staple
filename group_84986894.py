@@ -73,7 +73,7 @@ def run(helper: Helper, data, bot_info, send):
                 return True
             result = event.setPickupInterval(event_parts[4].strip())
             if result is not None:
-                send("Error in pickup interval." + str(result), bot_info[0])
+                send("Error in pickup interval. " + str(result), bot_info[0])
                 return True
             result = event.setGuestPickupTime(event_parts[5].strip())
             if result is not None:
