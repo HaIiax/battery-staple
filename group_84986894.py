@@ -279,9 +279,8 @@ def run(helper: Helper, data, bot_info, send):
             car = Car.asCar(storer.get(Car(assignment['car_id']).pk()))
 
             guest_scheduled_message = "Guest " + description + ", from " + location + ", pickup @" + pickup_time + ", by " + car.model + ", driven by " + driver.name
+            send(guest_scheduled_message + ". URL: " + schedule_html_url, bot_info[0])
 
-            send(guest_scheduled_message + schedule_html_url, bot_info[0])
-            send("Guest added. URL: " + schedule_html_url, bot_info[0])
 
             return True
 
