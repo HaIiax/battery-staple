@@ -142,7 +142,7 @@ def run(helper: Helper, data, bot_info, send):
             send("No current event. Try again later", bot_info[0])
             return True
         event_date = event['event_date']
-        rs = RideSchedule(event_date)
+        rs = RideSchedule(event_date, event['guest_rides'], 1000)
         rs.setCars(Queries.getCars(event_date))
         rs.setRiders(Queries.getRiders(event_date))
         rs.computeSchedule()
