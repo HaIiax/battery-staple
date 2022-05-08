@@ -38,6 +38,7 @@ DEBUG = (True if os.getenv('BOT_DEBUG') == 'True' else False)
 POST_TO = 'https://api.groupme.com/v3/bots/post'
 GROUP_RULES = {}
 BOT_INFO = {}
+TOKEN = os.getenv('TOKEN')
 
 if DEBUG:
     print(errcol.debug + "Web concurrency is set to " + os.getenv('WEB_CONCURRENCY') + errcol.tail)
@@ -119,8 +120,11 @@ def send_message(msg, bot_id):
 
 app = Flask(__name__)
 
-@app.route('/', methods=['POST'])
-def webhook():
+@app.route('/<request_token>', methods=['POST'])
+def webhook(request_token):
+    if request_token != TOKEN:
+        return "ok", 200
+
     data = request.get_json()
 
     logmsg(data)

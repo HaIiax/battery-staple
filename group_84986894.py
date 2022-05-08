@@ -16,10 +16,10 @@ def run(helper: Helper, data, bot_info, send):
                    ".sometimesgoing --> \n. " \
                    ".notgoing --> opts user out of current event\n. " \
                    ".going --> opts user into current event\n. " \
-                   "(*).event add, date, name, first ride, interval, first guest, guest interval, #guests."
+                   "(*).event add, date, name, first ride, interval, first guest, guest interval, #guests." \
+                   "incomplete so far"
     storer: Storage = helper.storage
     security: Security = helper.command_security
-
     person = storer.upsert_person(data)
     print(person)
 
