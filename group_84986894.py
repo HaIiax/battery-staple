@@ -8,15 +8,15 @@ from helper import Helper
 
 
 def run(helper: Helper, data, bot_info, send):
-    help_message = "Commands:\n. " \
-                   "(*)command --> admin only " \
-                   ".help  -->  This screen\n. " \
-                   ".user (1-9), (Commons, Main, South, West) \n. " \
-                   ".car add/remove, seats, model, where it's parked\n. " \
-                   ".sometimesgoing --> \n. " \
-                   ".notgoing --> opts user out of current event\n. " \
-                   ".going --> opts user into current event\n. " \
-                   "(*).event add, date, name, first ride, interval, first guest, guest interval, #guests." \
+    help_message = "Commands:. \n" \
+                   "(*)command --> admin only.\n" \
+                   ".help  -->  This screen.\n " \
+                   ".user (1-9), (Commons, Main, South, West).\n " \
+                   ".car add/remove, seats, model, where it's parked.\n" \
+                   ".sometimesgoing -->.\n" \
+                   ".notgoing --> opts user out of current event.\n" \
+                   ".going --> opts user into current event.\n" \
+                   "(*).event add, date, name, first ride, interval, first guest, guest interval, #guests.\n" \
                    "incomplete so far"
     storer: Storage = helper.storage
     security: Security = helper.command_security
